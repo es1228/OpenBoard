@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
 import Scorecard from "./components/Scorecard";
+import Dropdown from "./components/Dropdown";
 
 type Event = {
     id: string;
@@ -34,21 +35,27 @@ type Event = {
 };
 
 export default function App() {
-    const [nhlScoreboards, setNHLScoreboards] = useState<Event[]>([]);
+    const [scoreboards, setScoreboards] = useState<Event[]>([]);
+    const [scoreboardParams, setScoreboardParams] =
+        useState<string>("hockey/nhl");
+
+    const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setScoreboardParams(e.target.value);
+    }
 
     useEffect(() => {
-        const fetchNHLScoreboards = async () => {
+        const fetchScoreboards = async () => {
             const response = await fetch(
-                "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard",
+                `https://site.api.espn.com/apis/site/v2/sports/${scoreboardParams}/scoreboard`,
             );
             const data = await response.json();
-            setNHLScoreboards(data.events);
+            setScoreboards(data.events);
             console.log(data.events);
         };
-        fetchNHLScoreboards();
-    }, []);
+        fetchScoreboards();
+    }, [scoreboardParams]);
 
-    const nhlScoresList = nhlScoreboards.map((event) => {
+    const nhlScoresList = scoreboards.map((event) => {
         const competition = event.competitions[0];
         const competitiors = competition.competitors;
         const homeTeam = competitiors.find((c) => c.homeAway === "home");
@@ -81,16 +88,7 @@ export default function App() {
                     <h1 className="text-2xl text-black dark:text-white">
                         Matches
                     </h1>
-                    <select
-                        name="teams"
-                        id="teamsSelect"
-                        className="rounded-3xl bg-neutral-400/20 p-2 text-black outline-0 backdrop-blur hover:opacity-70 dark:bg-neutral-800/40 dark:text-white"
-                    >
-                        <option value="nhl">NHL</option>
-                        <option value="nba">NBA</option>
-                        <option value="nba">NFL</option>
-                        <option value="mlb">MLB</option>
-                    </select>
+                    <Dropdown selectedValue={scoreboardParams} handleChange={handleDropdownChange}/>
                 </div>
             </div>
             <div className="mx-5 mt-2 mb-30 flex flex-col gap-4 md:mr-5 md:mb-5 md:ml-50">
