@@ -1,7 +1,7 @@
 export default function Navbar() {
     return (
         <>
-            <nav className="fixed right-5 bottom-5 left-5 justify-center rounded-3xl bg-neutral-400/20 backdrop-blur md:top-18 md:w-fit dark:bg-neutral-800/40 z-10000">
+            <nav className="fixed right-5 bottom-5 left-5 z-10000 justify-center rounded-3xl bg-neutral-400/20 backdrop-blur md:top-18 md:w-fit dark:bg-neutral-800/40">
                 <ul className="flex h-full justify-center gap-4 p-4 md:flex-col">
                     <li className="flex flex-col items-center gap-2 hover:cursor-pointer hover:opacity-70 md:flex-row">
                         <span className="material-symbols-rounded text-black dark:text-white">

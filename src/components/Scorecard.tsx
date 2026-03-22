@@ -1,6 +1,5 @@
 type ScorecardProps = {
-    league: string;
-    time: string;
+    status: string;
     homeTeamName: string;
     shortHomeTeam: string;
     homeTeamLogo: string;
@@ -14,8 +13,7 @@ type ScorecardProps = {
 };
 
 export default function Scorecard({
-    league,
-    time,
+    status,
     homeTeamName,
     shortHomeTeam,
     homeTeamLogo,
@@ -31,7 +29,7 @@ export default function Scorecard({
         <>
             <div className="cursor-pointer rounded-3xl bg-neutral-400/20 p-4 hover:opacity-70 dark:bg-neutral-800/40 backdrop-blur">
                 <p className="text-black dark:text-white">
-                    {league} • {time}
+                    {status}
                 </p>
                 <div className="mt-2 flex items-center justify-between">
                     <div className="flex flex-1 flex-col items-start gap-2">

@@ -26,6 +26,11 @@ type Event = {
             score: number;
         }>;
     }>;
+    status: {
+        type: {
+            shortDetail: string;
+        };
+    };
 };
 
 export default function App() {
@@ -52,8 +57,7 @@ export default function App() {
         return (
             <Scorecard
                 key={event.id}
-                league="NHL"
-                time={new Date(competition.date).toLocaleTimeString()}
+                status={event.status.type.shortDetail}
                 homeTeamName={homeTeam.team.displayName}
                 shortHomeTeam={homeTeam.team.abbreviation}
                 homeTeamLogo={homeTeam.team.logo}
@@ -80,7 +84,7 @@ export default function App() {
                     <select
                         name="teams"
                         id="teamsSelect"
-                        className="rounded-3xl bg-neutral-400/20 p-2 text-black outline-0 hover:opacity-70 dark:bg-neutral-800/40 dark:text-white backdrop-blur"
+                        className="rounded-3xl bg-neutral-400/20 p-2 text-black outline-0 backdrop-blur hover:opacity-70 dark:bg-neutral-800/40 dark:text-white"
                     >
                         <option value="nhl">NHL</option>
                         <option value="nba">NBA</option>
@@ -89,7 +93,7 @@ export default function App() {
                     </select>
                 </div>
             </div>
-            <div className="mx-5 mt-2 mb-5 flex flex-col gap-4 md:mr-5 md:ml-50">
+            <div className="mx-5 mt-2 mb-30 flex flex-col gap-4 md:mr-5 md:mb-5 md:ml-50">
                 {nhlScoresList}
             </div>
         </>
