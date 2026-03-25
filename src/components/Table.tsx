@@ -11,31 +11,39 @@ export default function Table({ standings, cols }: TableProps) {
     }
     return (
         <>
-            <table className="bg-neutral-400/20 dark:bg-neutral-800/40 rounded-3xl">
-                <thead>
-                    <tr>
-                        <th className="text-black dark:text-white p-4">Team</th>
-                        {cols.map((key) => {
-                            const statHeader = standings[0].stats.find(
-                                (s) => s.name === key,
-                            );
-                            return (
-                                <th
-                                    key={key}
-                                    className="text-black dark:text-white"
-                                >
-                                    {statHeader?.abbreviation}
-                                </th>
-                            );
-                        })}
-                    </tr>
-                </thead>
-                <tbody className="text-black dark:text-white text-center">
+            <div className="rounded-3xl bg-neutral-400/20 dark:bg-neutral-800/40 overflow-x-auto">
+                <table className="w-full table-auto border-collapse min-w-150">
+                    <thead>
+                        <tr>
+                            <th className="p-4 text-black dark:text-white">
+                                Team
+                            </th>
+                            {cols.map((key) => {
+                                const statHeader = standings[0].stats.find(
+                                    (s) => s.name === key,
+                                );
+                                return (
+                                    <th
+                                        key={key}
+                                        className="text-black dark:text-white"
+                                    >
+                                        {statHeader?.abbreviation}
+                                    </th>
+                                );
+                            })}
+                        </tr>
+                    </thead>
+                    <tbody className="text-center text-black dark:text-white">
                         {standings.map((entry) => (
                             <tr key={entry.team.abbreviation}>
-                                <td className="flex items-center gap-4 px-4 py-2">
-                                    <img src={entry.team.logos[0].href} alt={`${entry.team.displayName} Logo`} className="h-10" />
-                                    {entry.team.displayName}
+                                <td className="flex items-center gap-4 pl-4 py-2">
+                                    <img
+                                        src={entry.team.logos[0].href}
+                                        alt={`${entry.team.displayName} Logo`}
+                                        className="h-10"
+                                    />
+                                    <p className="hidden md:block">{entry.team.displayName}</p>
+                                    <p className="md:hidden block">{entry.team.abbreviation}</p>
                                 </td>
                                 {cols.map((key) => {
                                     const statValue = entry.stats.find(
@@ -50,7 +58,8 @@ export default function Table({ standings, cols }: TableProps) {
                             </tr>
                         ))}
                     </tbody>
-            </table>
+                </table>
+            </div>
         </>
     );
 }

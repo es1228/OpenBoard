@@ -56,12 +56,12 @@ export type StandingEntry = {
 
 export const standingsConfig = {
     "hockey/nhl": [
-        "gamesPlayed",
+        "points",
         "wins",
         "losses",
         "otLosses",
+        "gamesPlayed",
         "gamesBehind",
-        "points",
         "pointsFor",
         "pointsAgainst",
         "pointDifferential",
@@ -101,9 +101,14 @@ export const standingsConfig = {
 };
 
 export default function App() {
+    const [page, setPage] = useState<string>("Home")
     const [scoreboards, setScoreboards] = useState<Event[]>([]);
     const [standings, setStandings] = useState<StandingEntry[]>([]);
     const [sportLeague, setsportLeague] = useState<string>("hockey/nhl");
+
+    const handleNavbarSelect = (value: string) => {
+        setPage(value)
+    }
 
     const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setsportLeague(e.target.value);
@@ -162,15 +167,32 @@ export default function App() {
 
     const currentCols =
         standingsConfig[sportLeague as keyof typeof standingsConfig];
+    
+    let content;
+
+    if (page === "Matches") {
+        content = (
+            <>
+                {scoresList}
+            </>
+        )
+    }
+    else if (page === "Table") {
+        content = (
+            <>
+                <Table standings={standings} cols={currentCols}/>
+            </>
+        )
+    }
 
     return (
         <>
             <Header />
-            <Navbar />
+            <Navbar handlePageChange={handleNavbarSelect}/>
             <div className="mx-5 mt-20 flex flex-col gap-4 md:ml-50">
                 <div className="flex justify-between">
                     <h1 className="text-2xl text-black dark:text-white">
-                        Standings
+                        {page}
                     </h1>
                     <Dropdown
                         selectedValue={sportLeague}
@@ -179,7 +201,7 @@ export default function App() {
                 </div>
             </div>
             <div className="mx-5 mt-2 mb-30 flex flex-col gap-4 md:mr-5 md:mb-5 md:ml-50">
-                <Table standings={standings} cols={currentCols}/>
+                {content}
             </div>
         </>
     );
