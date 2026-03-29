@@ -22,6 +22,7 @@ export type Event = {
                 displayName: string;
                 shortDisplayName: string;
                 logo: string;
+                color: string;
             };
             linescores: Array<{
                 displayValue: string;
@@ -32,12 +33,28 @@ export type Event = {
             }>;
             score: number;
         }>;
+        venue: {
+            fullName: string;
+            address: {
+                city: string;
+            };
+        };
     }>;
     status: {
         type: {
             name: string;
             shortDetail: string;
         };
+    };
+};
+
+export type Standings = {
+    abbreviation: string;
+    name: string;
+    shortName: string;
+    children: Standings[];
+    standings?: {
+        entries: StandingEntry[];
     };
 };
 
@@ -57,6 +74,7 @@ export type StandingEntry = {
         description: string;
         abbreviation: string;
         displayValue: string;
+        value: number;
     }>;
 };
 
@@ -122,12 +140,12 @@ export default function App() {
         return saved ? saved : "hockey/nhl";
     });
     const [scoreboards, setScoreboards] = useState<Event[]>([]);
-    const [standings, setStandings] = useState<StandingEntry[]>([]);
+    const [standings, setStandings] = useState<Standings>();
+    const [level, setLevel] = useState<number>(1);
     const [boxScoreIndex, setBoxScoreIndex] = useState<number>();
 
     useEffect(() => {
-        if (page !== "Box Score")
-            localStorage.setItem("page", page);
+        if (page !== "Overview") localStorage.setItem("page", page);
     }, [page]);
 
     useEffect(() => {
@@ -143,9 +161,9 @@ export default function App() {
     };
 
     const openGameInfo = (id: string) => {
-        setPage("Box Score")
-        setBoxScoreIndex(scoreboards.findIndex(event => event.id === id))
-    }
+        setPage("Overview");
+        setBoxScoreIndex(scoreboards.findIndex((event) => event.id === id));
+    };
 
     useEffect(() => {
         const fetchScoreboards = async () => {
@@ -153,7 +171,6 @@ export default function App() {
                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
             );
             const data = await response.json();
-            console.log(data.events);
             setScoreboards(data.events);
         };
         fetchScoreboards();
@@ -162,13 +179,14 @@ export default function App() {
     useEffect(() => {
         const fetchStandings = async () => {
             const response = await fetch(
-                `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=1`,
+                `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=${level}`,
             );
             const data = await response.json();
-            setStandings(data.standings.entries);
+            console.log(data);
+            setStandings(data);
         };
         fetchStandings();
-    }, [sportLeague]);
+    }, [sportLeague, level]);
 
     const scoresList = scoreboards.map((event) => {
         const competition = event.competitions[0];
@@ -180,7 +198,12 @@ export default function App() {
         if (!homeTeam || !awayTeam) return null;
 
         return (
-            <Scorecard key={event.id} event={event} sportLeague={sportLeague} handleClick={() => openGameInfo(event.id)} />
+            <Scorecard
+                key={event.id}
+                event={event}
+                sportLeague={sportLeague}
+                handleClick={() => openGameInfo(event.id)}
+            />
         );
     });
 
@@ -192,9 +215,34 @@ export default function App() {
     if (page === "Matches") {
         content = <>{scoresList}</>;
     } else if (page === "Table") {
-        content = <Table standings={standings} cols={currentCols} />;
-    } else if (page === "Box Score") {
-        content = <GameInfo game={scoreboards[boxScoreIndex!]} sportLeague={sportLeague}/>
+        if (!standings) return;
+        content = (
+            <>
+                <div className="flex items-center justify-between">
+                    <p className="text-black dark:text-white">Sort By:</p>
+                    <Dropdown
+                        selectedValue={level.toString()}
+                        handleChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                            setLevel(parseInt(e.target.value))
+                        }
+                        values={["1", "2", "3"]}
+                        names={["League", "Conference", "Division"]}
+                    />
+                </div>
+                <Table
+                    data={standings}
+                    cols={currentCols}
+                    sportLeague={sportLeague}
+                />
+            </>
+        );
+    } else if (page === "Overview") {
+        content = (
+            <GameInfo
+                game={scoreboards[boxScoreIndex!]}
+                sportLeague={sportLeague}
+            />
+        );
     }
 
     return (
@@ -209,6 +257,13 @@ export default function App() {
                     <Dropdown
                         selectedValue={sportLeague}
                         handleChange={handleDropdownChange}
+                        values={[
+                            "hockey/nhl",
+                            "football/nfl",
+                            "basketball/nba",
+                            "baseball/mlb",
+                        ]}
+                        names={["NHL", "NFL", "NBA", "MLB"]}
                     />
                 </div>
             </div>

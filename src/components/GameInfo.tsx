@@ -1,12 +1,44 @@
 import type { Event } from "../App";
 import Scorecard from "./Scorecard";
+import { useEffect, useState } from "react";
 
 type GameInfoProps = {
     game: Event;
     sportLeague: string;
 };
 
+type winprobability = {
+    homeWinPercentage: number;
+};
+
 export default function GameInfo({ game, sportLeague }: GameInfoProps) {
+    const [winProbability, setWinProbability] = useState<winprobability[]>([]);
+    useEffect(() => {
+        const fetchWinProbability = async () => {
+            const response = await fetch(
+                `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
+            );
+            const data = await response.json();
+            setWinProbability(data.winprobability);
+        };
+        fetchWinProbability();
+    }, []);
+
+    const homeWinPercentage =
+        Math.round(
+            winProbability?.[winProbability.length - 1]?.homeWinPercentage *
+                100,
+        ) ?? 50;
+    const awayWinPercentage = 100 - homeWinPercentage;
+
+    const awayTeam = game?.competitions[0]?.competitors.find(
+        (c) => c.homeAway === "away",
+    );
+
+    const homeTeam = game?.competitions[0]?.competitors.find(
+        (c) => c.homeAway === "home",
+    );
+
     return (
         <>
             <Scorecard
@@ -15,51 +47,83 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                 handleClick={() => {}}
             />
             <div className="rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
-                <table className="w-full border-collapse">
-                    <tr>
-                        <th className="text-left">Team</th>
-                        {game?.competitions[0]?.competitors
-                            .find((c) => c.homeAway === "away")
-                            ?.linescores?.map((linescore) => (
+                <p>Box Score</p>
+                <table className="mt-2 w-full border-collapse">
+                    <thead>
+                        <tr>
+                            <th className="text-left">Team</th>
+                            {awayTeam?.linescores?.map((linescore) => (
                                 <th className="w-10 text-center">
                                     {linescore.period}
                                 </th>
                             ))}
-                    </tr>
-                    <tr>
-                        <td className="text-left">
-                            {
-                                game?.competitions[0].competitors.find(
-                                    (c) => c.homeAway === "away",
-                                )?.team.abbreviation
-                            }
-                        </td>
-                        {game?.competitions[0].competitors
-                            .find((c) => c.homeAway === "away")
-                            ?.linescores?.map((linescore) => (
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td className="text-left">
+                                {awayTeam?.team.abbreviation}
+                            </td>
+                            {awayTeam?.linescores?.map((linescore) => (
                                 <td className="text-center">
                                     {linescore.displayValue}
                                 </td>
                             ))}
-                    </tr>
-                    <tr>
-                        <td className="text-left">
-                            {
-                                game?.competitions[0].competitors.find(
-                                    (c) => c.homeAway === "home",
-                                )?.team.abbreviation
-                            }
-                        </td>
-                        {game?.competitions[0].competitors
-                            .find((c) => c.homeAway === "home")
-                            ?.linescores?.map((linescore) => (
+                        </tr>
+                        <tr>
+                            <td className="text-left">
+                                {homeTeam?.team.abbreviation}
+                            </td>
+                            {homeTeam?.linescores?.map((linescore) => (
                                 <td className="text-center">
                                     {linescore.displayValue}
                                 </td>
                             ))}
-                    </tr>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
+            <div className="rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
+                <h1>Win Probability</h1>
+                <div className="mt-2 flex items-center justify-center gap-2">
+                    <div>
+                        <p>{awayTeam?.team.abbreviation}</p>
+                        <p>{awayWinPercentage}%</p>
+                    </div>
+                    <div className="flex h-2 w-full rounded-3xl">
+                        <div
+                            className={`${awayWinPercentage === 100 ? "rounded-3xl" : "rounded-l-3xl"}`}
+                            style={{
+                                width: `${awayWinPercentage}%`,
+                                backgroundColor: `#${
+                                    game.competitions[0].competitors.find(
+                                        (c) => c.homeAway === "away",
+                                    )?.team.color
+                                }`,
+                            }}
+                        ></div>
+                        <div
+                            className={`${homeWinPercentage === 100 ? "rounded-3xl" : "rounded-r-3xl"}`}
+                            style={{
+                                width: `${homeWinPercentage}%`,
+                                backgroundColor: `#${
+                                    game.competitions[0].competitors.find(
+                                        (c) => c.homeAway === "home",
+                                    )?.team.color
+                                }`,
+                            }}
+                        ></div>
+                    </div>
+                    <div>
+                        <p>{homeTeam?.team.abbreviation}</p>
+                        <p>{homeWinPercentage}%</p>
+                    </div>
+                </div>
+            </div>
+            <p className="text-black dark:text-white">
+                Venue:{" "}
+                {`${game?.competitions[0].venue.fullName}, ${game?.competitions[0].venue.address.city}`}
+            </p>
         </>
     );
 }
