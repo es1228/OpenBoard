@@ -1,36 +1,37 @@
+import { useEffect, useState } from "react";
+import { type Event, type Summary } from "../App";
+
 type ScorecardProps = {
-    status: string;
-    homeTeamName: string;
-    shortHomeTeam: string;
-    homeTeamLogo: string;
-    homeTeamScore: number;
-    homeTeamRecord: string;
-    awayTeamName: string;
-    shortAwayTeam: string;
-    awayTeamLogo: string;
-    awayTeamScore: number;
-    awayTeamRecord: string;
+    event: Event;
+    sportLeague: string;
+    handleClick: () => void;
 };
 
-export default function Scorecard({
-    status,
-    homeTeamName,
-    shortHomeTeam,
-    homeTeamLogo,
-    homeTeamScore,
-    homeTeamRecord,
-    awayTeamName,
-    shortAwayTeam,
-    awayTeamLogo,
-    awayTeamScore,
-    awayTeamRecord,
-}: ScorecardProps) {
+export default function Scorecard({ event, sportLeague, handleClick }: ScorecardProps) {
+    const [gameSummary, setGameSummary] = useState<Summary>();
+
+    const competition = event.competitions[0];
+    const competitiors = competition.competitors;
+
+    const homeTeam = competitiors.find((c) => c.homeAway === "home");
+    const awayTeam = competitiors.find((c) => c.homeAway === "away");
+
+    useEffect(() => {
+        const fetchSummary = async () => {
+            if (event.status.type.name === "STATUS_IN_PROGRESS") {
+                const response = await fetch(
+                    `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${event.id}`,
+                );
+                const data = await response.json();
+                setGameSummary(data);
+            }
+        };
+        fetchSummary();
+    }, [sportLeague, event.id]);
     return (
         <>
-            <div className="cursor-pointer rounded-3xl bg-neutral-400/20 p-4 hover:opacity-70 dark:bg-neutral-800/40 backdrop-blur">
-                <p className="text-black dark:text-white">
-                    {status}
-                </p>
+            <div className="cursor-pointer rounded-3xl bg-neutral-400/20 p-4 backdrop-blur hover:opacity-70 dark:bg-neutral-800/40" onClick={handleClick}>
+                <p className="text-black dark:text-white">{event.status.type.shortDetail}</p>
                 <div className="mt-2 flex items-center justify-between">
                     <div className="flex flex-1 flex-col items-start gap-2">
                         <h1 className="text-lg text-black dark:text-white">
@@ -39,49 +40,53 @@ export default function Scorecard({
                         <div className="flex items-center gap-4">
                             <img
                                 className="w-15 md:w-20"
-                                src={awayTeamLogo}
-                                alt={`${awayTeamName} Logo`}
+                                src={awayTeam?.team.logo}
+                                alt={`${awayTeam?.team.name} Logo`}
                             />
-                            <h1 className="text-5xl text-black dark:text-white">
-                                {awayTeamScore}
+                            <h1 className={`text-5xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}>
+                                {awayTeam?.score}
                             </h1>
                         </div>
                         <p className="hidden text-black md:block dark:text-white">
-                            {awayTeamName}
+                            {awayTeam?.team.displayName}
                         </p>
                         <p className="block text-black md:hidden dark:text-white">
-                            {shortAwayTeam}
+                            {awayTeam?.team.abbreviation}
                         </p>
                         <p className="text-black dark:text-white">
-                            {awayTeamRecord}
+                            {awayTeam?.records[0].summary}
                         </p>
                     </div>
-                    <p className="text-black dark:text-white">@</p>
+                    <p className="text-black dark:text-white text-5xl mb-8">-</p>
                     <div className="flex flex-1 flex-col items-end gap-2">
                         <h1 className="text-lg text-black dark:text-white">
                             Home
                         </h1>
                         <div className="flex items-center gap-4">
-                            <h1 className="text-5xl text-black dark:text-white">
-                                {homeTeamScore}
+                            <h1 className={`text-5xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}>
+                                {homeTeam?.score}
                             </h1>
                             <img
                                 className="w-15 md:w-20"
-                                src={homeTeamLogo}
-                                alt={`${homeTeamName} Logo`}
+                                src={homeTeam?.team.logo}
+                                alt={`${homeTeam?.team.name} Logo`}
                             />
                         </div>
                         <p className="hidden text-black md:block dark:text-white">
-                            {homeTeamName}
+                            {homeTeam?.team.displayName}
                         </p>
                         <p className="block text-black md:hidden dark:text-white">
-                            {shortHomeTeam}
+                            {homeTeam?.team.abbreviation}
                         </p>
                         <p className="text-black dark:text-white">
-                            {homeTeamRecord}
+                            {homeTeam?.records[0].summary}
                         </p>
                     </div>
                 </div>
+                <p className="text-center text-black dark:text-white">
+                    {gameSummary?.plays?.[gameSummary.plays.length - 1]?.text ??
+                        ""}
+                </p>
             </div>
         </>
     );

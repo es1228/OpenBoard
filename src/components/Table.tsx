@@ -11,8 +11,8 @@ export default function Table({ standings, cols }: TableProps) {
     }
     return (
         <>
-            <div className="rounded-3xl bg-neutral-400/20 dark:bg-neutral-800/40 overflow-x-auto">
-                <table className="w-full table-auto border-collapse min-w-150">
+            <div className="overflow-x-auto rounded-3xl bg-neutral-400/20 dark:bg-neutral-800/40">
+                <table className="w-full min-w-150 table-auto border-collapse">
                     <thead>
                         <tr>
                             <th className="p-4 text-black dark:text-white">
@@ -36,14 +36,22 @@ export default function Table({ standings, cols }: TableProps) {
                     <tbody className="text-center text-black dark:text-white">
                         {standings.map((entry) => (
                             <tr key={entry.team.abbreviation}>
-                                <td className="flex items-center gap-4 pl-4 py-2">
+                                <td className="flex items-center gap-4 py-2 pl-4">
                                     <img
                                         src={entry.team.logos[0].href}
                                         alt={`${entry.team.displayName} Logo`}
                                         className="h-10"
                                     />
-                                    <p className="hidden md:block">{entry.team.displayName}</p>
-                                    <p className="md:hidden block">{entry.team.abbreviation}</p>
+                                    <div className="flex">
+                                        {entry.stats[1].name === "clincher" &&
+                                            `${entry.stats[1].displayValue} - \u200b`}
+                                        <p className="hidden md:block">
+                                            {entry.team.displayName}
+                                        </p>
+                                        <p className="block md:hidden">
+                                            {entry.team.abbreviation}
+                                        </p>
+                                    </div>
                                 </td>
                                 {cols.map((key) => {
                                     const statValue = entry.stats.find(

@@ -5,8 +5,9 @@ import Navbar from "./components/Navbar";
 import Scorecard from "./components/Scorecard";
 import Dropdown from "./components/Dropdown";
 import Table from "./components/Table";
+import GameInfo from "./components/GameInfo";
 
-type Event = {
+export type Event = {
     id: string;
     competitions: Array<{
         id: number;
@@ -22,6 +23,10 @@ type Event = {
                 shortDisplayName: string;
                 logo: string;
             };
+            linescores: Array<{
+                displayValue: string;
+                period: number;
+            }>;
             records: Array<{
                 summary: string;
             }>;
@@ -30,6 +35,7 @@ type Event = {
     }>;
     status: {
         type: {
+            name: string;
             shortDetail: string;
         };
     };
@@ -51,6 +57,12 @@ export type StandingEntry = {
         description: string;
         abbreviation: string;
         displayValue: string;
+    }>;
+};
+
+export type Summary = {
+    plays: Array<{
+        text: string;
     }>;
 };
 
@@ -101,18 +113,39 @@ export const standingsConfig = {
 };
 
 export default function App() {
-    const [page, setPage] = useState<string>("Home")
+    const [page, setPage] = useState<string>(() => {
+        const saved = localStorage.getItem("page");
+        return saved ? saved : "Home";
+    });
+    const [sportLeague, setsportLeague] = useState<string>(() => {
+        const saved = localStorage.getItem("sportLeague");
+        return saved ? saved : "hockey/nhl";
+    });
     const [scoreboards, setScoreboards] = useState<Event[]>([]);
     const [standings, setStandings] = useState<StandingEntry[]>([]);
-    const [sportLeague, setsportLeague] = useState<string>("hockey/nhl");
+    const [boxScoreIndex, setBoxScoreIndex] = useState<number>();
+
+    useEffect(() => {
+        if (page !== "Box Score")
+            localStorage.setItem("page", page);
+    }, [page]);
+
+    useEffect(() => {
+        localStorage.setItem("sportLeague", sportLeague);
+    }, [sportLeague]);
 
     const handleNavbarSelect = (value: string) => {
-        setPage(value)
-    }
+        setPage(value);
+    };
 
     const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setsportLeague(e.target.value);
     };
+
+    const openGameInfo = (id: string) => {
+        setPage("Box Score")
+        setBoxScoreIndex(scoreboards.findIndex(event => event.id === id))
+    }
 
     useEffect(() => {
         const fetchScoreboards = async () => {
@@ -120,8 +153,8 @@ export default function App() {
                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
             );
             const data = await response.json();
-            setScoreboards(data.events);
             console.log(data.events);
+            setScoreboards(data.events);
         };
         fetchScoreboards();
     }, [sportLeague]);
@@ -133,7 +166,6 @@ export default function App() {
             );
             const data = await response.json();
             setStandings(data.standings.entries);
-            console.log(data);
         };
         fetchStandings();
     }, [sportLeague]);
@@ -148,47 +180,27 @@ export default function App() {
         if (!homeTeam || !awayTeam) return null;
 
         return (
-            <Scorecard
-                key={event.id}
-                status={event.status.type.shortDetail}
-                homeTeamName={homeTeam.team.displayName}
-                shortHomeTeam={homeTeam.team.abbreviation}
-                homeTeamLogo={homeTeam.team.logo}
-                homeTeamScore={homeTeam.score}
-                homeTeamRecord={homeTeam.records[0].summary}
-                awayTeamName={awayTeam.team.displayName}
-                shortAwayTeam={awayTeam.team.abbreviation}
-                awayTeamLogo={awayTeam.team.logo}
-                awayTeamScore={awayTeam.score}
-                awayTeamRecord={awayTeam.records[0].summary}
-            />
+            <Scorecard key={event.id} event={event} sportLeague={sportLeague} handleClick={() => openGameInfo(event.id)} />
         );
     });
 
     const currentCols =
         standingsConfig[sportLeague as keyof typeof standingsConfig];
-    
+
     let content;
 
     if (page === "Matches") {
-        content = (
-            <>
-                {scoresList}
-            </>
-        )
-    }
-    else if (page === "Table") {
-        content = (
-            <>
-                <Table standings={standings} cols={currentCols}/>
-            </>
-        )
+        content = <>{scoresList}</>;
+    } else if (page === "Table") {
+        content = <Table standings={standings} cols={currentCols} />;
+    } else if (page === "Box Score") {
+        content = <GameInfo game={scoreboards[boxScoreIndex!]} sportLeague={sportLeague}/>
     }
 
     return (
         <>
             <Header />
-            <Navbar handlePageChange={handleNavbarSelect}/>
+            <Navbar handlePageChange={handleNavbarSelect} />
             <div className="mx-5 mt-20 flex flex-col gap-4 md:ml-50">
                 <div className="flex justify-between">
                     <h1 className="text-2xl text-black dark:text-white">
