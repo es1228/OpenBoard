@@ -19,10 +19,11 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
             );
             const data = await response.json();
+            console.log(data);
             setWinProbability(data.winprobability);
         };
         fetchWinProbability();
-    }, []);
+    }, [game]);
 
     const homeWinPercentage =
         Math.round(
@@ -83,7 +84,9 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                     </tbody>
                 </table>
             </div>
-            <div className="rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
+            <div
+                className={`rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white ${Number.isNaN(homeWinPercentage) && "hidden"}`}
+            >
                 <h1>Win Probability</h1>
                 <div className="mt-2 flex items-center justify-center gap-2">
                     <div>

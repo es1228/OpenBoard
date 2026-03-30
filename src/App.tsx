@@ -182,7 +182,6 @@ export default function App() {
                 `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=${level}`,
             );
             const data = await response.json();
-            console.log(data);
             setStandings(data);
         };
         fetchStandings();
