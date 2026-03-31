@@ -7,7 +7,11 @@ type ScorecardProps = {
     handleClick: () => void;
 };
 
-export default function Scorecard({ event, sportLeague, handleClick }: ScorecardProps) {
+export default function Scorecard({
+    event,
+    sportLeague,
+    handleClick,
+}: ScorecardProps) {
     const [gameSummary, setGameSummary] = useState<Summary>();
 
     const competition = event.competitions[0];
@@ -28,10 +32,17 @@ export default function Scorecard({ event, sportLeague, handleClick }: Scorecard
         };
         fetchSummary();
     }, [sportLeague, event.id]);
+
     return (
         <>
-            <div className="cursor-pointer rounded-3xl bg-neutral-400/20 p-4 backdrop-blur hover:opacity-70 dark:bg-neutral-800/40" onClick={handleClick}>
-                <p className="text-black dark:text-white">{event.status.type.shortDetail}</p>
+            <div
+                className="cursor-pointer rounded-3xl bg-neutral-400/20 p-4 backdrop-blur hover:opacity-70 dark:bg-neutral-800/40"
+                onClick={handleClick}
+            >
+                <p className="text-black dark:text-white">
+                    {event.status?.type.shortDetail ??
+                        event.competitions[0].status.type.shortDetail}
+                </p>
                 <div className="mt-2 flex items-center justify-between">
                     <div className="flex flex-1 flex-col items-start gap-2">
                         <h1 className="text-lg text-black dark:text-white">
@@ -40,11 +51,18 @@ export default function Scorecard({ event, sportLeague, handleClick }: Scorecard
                         <div className="flex items-center gap-4">
                             <img
                                 className="w-15 md:w-20"
-                                src={awayTeam?.team.logo}
+                                src={
+                                    awayTeam?.team.logo ??
+                                    awayTeam?.team.logos[0].href
+                                }
                                 alt={`${awayTeam?.team.name} Logo`}
                             />
-                            <h1 className={`text-5xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}>
-                                {awayTeam?.score}
+                            <h1
+                                className={`text-5xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}
+                            >
+                                {typeof awayTeam?.score === "object"
+                                    ? awayTeam.score.displayValue
+                                    : awayTeam?.score}
                             </h1>
                         </div>
                         <p className="hidden text-black md:block dark:text-white">
@@ -54,21 +72,31 @@ export default function Scorecard({ event, sportLeague, handleClick }: Scorecard
                             {awayTeam?.team.abbreviation}
                         </p>
                         <p className="text-black dark:text-white">
-                            {awayTeam?.records[0].summary}
+                            {awayTeam?.records?.[0].summary ??
+                                awayTeam?.record?.[0].displayValue}
                         </p>
                     </div>
-                    <p className="text-black dark:text-white text-5xl mb-8">-</p>
+                    <p className="mb-8 text-5xl text-black dark:text-white">
+                        -
+                    </p>
                     <div className="flex flex-1 flex-col items-end gap-2">
                         <h1 className="text-lg text-black dark:text-white">
                             Home
                         </h1>
                         <div className="flex items-center gap-4">
-                            <h1 className={`text-5xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}>
-                                {homeTeam?.score}
+                            <h1
+                                className={`text-5xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}
+                            >
+                                {typeof homeTeam?.score === "object"
+                                    ? homeTeam.score.displayValue
+                                    : homeTeam?.score}
                             </h1>
                             <img
                                 className="w-15 md:w-20"
-                                src={homeTeam?.team.logo}
+                                src={
+                                    homeTeam?.team.logo ??
+                                    homeTeam?.team.logos[0].href
+                                }
                                 alt={`${homeTeam?.team.name} Logo`}
                             />
                         </div>
@@ -79,7 +107,8 @@ export default function Scorecard({ event, sportLeague, handleClick }: Scorecard
                             {homeTeam?.team.abbreviation}
                         </p>
                         <p className="text-black dark:text-white">
-                            {homeTeam?.records[0].summary}
+                            {homeTeam?.records?.[0].summary ??
+                                homeTeam?.record?.[0].displayValue}
                         </p>
                     </div>
                 </div>

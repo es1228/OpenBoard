@@ -3,10 +3,10 @@ import { type StandingEntry, type Standings } from "../App";
 type TableProps = {
     data: Standings;
     cols: string[];
-    sportLeague: string;
+    handleClick: (id: string) => void;
 };
 
-export default function Table({ data, cols, sportLeague }: TableProps) {
+export default function Table({ data, cols, handleClick }: TableProps) {
     if (!data) {
         return <p className="text-black dark:text-white">Loading...</p>;
     }
@@ -16,20 +16,20 @@ export default function Table({ data, cols, sportLeague }: TableProps) {
     if (hasChildren) {
         return data.children.map((group) => (
             <div key={group.name} className="flex flex-col gap-2">
-                <h1 className="text-black dark:text-white text-lg">{group.shortName ?? group.name}</h1>
-                <Table data={group} cols={cols} sportLeague={sportLeague} />
+                <h1 className="text-lg text-black dark:text-white">
+                    {group.shortName ?? group.name}
+                </h1>
+                <Table data={group} cols={cols} handleClick={handleClick}/>
             </div>
         ));
     }
 
     if (data.standings?.entries) {
-        return (
-            <StandingsTable data={data} cols={cols} sportLeague={sportLeague} />
-        );
+        return <StandingsTable data={data} cols={cols} handleClick={handleClick} />;
     }
 }
 
-const StandingsTable = ({ data, cols, sportLeague }: TableProps) => {
+const StandingsTable = ({ data, cols, handleClick }: TableProps) => {
     return (
         <>
             <div className="overflow-x-auto rounded-3xl bg-neutral-400/20 dark:bg-neutral-800/40">
@@ -58,10 +58,7 @@ const StandingsTable = ({ data, cols, sportLeague }: TableProps) => {
                     <tbody className="text-center text-black dark:text-white">
                         {data.standings?.entries
                             .toSorted((a: StandingEntry, b: StandingEntry) => {
-                                const sortKey =
-                                    sportLeague === "hockey/nhl"
-                                        ? "points"
-                                        : "leagueWinPercent";
+                                const sortKey = "gamesBehind";
 
                                 const statA =
                                     a.stats?.find((s) => s.name === sortKey)
@@ -70,10 +67,10 @@ const StandingsTable = ({ data, cols, sportLeague }: TableProps) => {
                                     b.stats?.find((s) => s.name === sortKey)
                                         ?.value ?? 0;
 
-                                return statB - statA;
+                                return statA - statB;
                             })
                             .map((entry) => (
-                                <tr key={entry.team.abbreviation}>
+                                <tr key={entry.team.id} className="hover:opacity-70" onClick={() => entry.team.id && handleClick(entry.team.id)}>
                                     <td className="flex items-center gap-4 py-2 pl-4">
                                         <img
                                             src={entry.team.logos[0].href}
@@ -81,8 +78,8 @@ const StandingsTable = ({ data, cols, sportLeague }: TableProps) => {
                                             className="h-10"
                                         />
                                         <div className="flex">
-                                            {entry.stats[1].name ===
-                                                "clincher" &&
+                                            {entry.stats.find(s => s.name ===
+                                                "clincher") &&
                                                 `${entry.stats[1].displayValue} - \u200b`}
                                             <p className="hidden md:block">
                                                 {entry.team.displayName}

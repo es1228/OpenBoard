@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
@@ -21,8 +21,12 @@ export type Event = {
                 abbreviation: string;
                 displayName: string;
                 shortDisplayName: string;
-                logo: string;
+                logo?: string;
+                logos: Array<{
+                    href: string;
+                }>;
                 color: string;
+                id: string;
             };
             linescores: Array<{
                 displayValue: string;
@@ -31,12 +35,24 @@ export type Event = {
             records: Array<{
                 summary: string;
             }>;
-            score: number;
+            record: Array<{
+                displayValue: string;
+            }>;
+            score?: {
+                value: number;
+                displayValue?: string;
+            };
         }>;
         venue: {
             fullName: string;
             address: {
                 city: string;
+            };
+        };
+        status: {
+            type: {
+                name: string;
+                shortDetail: string;
             };
         };
     }>;
@@ -66,6 +82,7 @@ export type StandingEntry = {
         logos: Array<{
             href: string;
         }>;
+        id: string;
     };
     stats: Array<{
         name: string;
@@ -131,6 +148,7 @@ export const standingsConfig = {
 };
 
 export default function App() {
+    const scrollRef = useRef<HTMLDivElement>(null);
     const [page, setPage] = useState<string>(() => {
         const saved = localStorage.getItem("page");
         return saved ? saved : "Home";
@@ -140,8 +158,12 @@ export default function App() {
         return saved ? saved : "hockey/nhl";
     });
     const [scoreboards, setScoreboards] = useState<Event[]>([]);
+    const [teamScores, setTeamScores] = useState<boolean>(false);
     const [standings, setStandings] = useState<Standings>();
-    const [level, setLevel] = useState<number>(1);
+    const [level, setLevel] = useState<number>(() => {
+        const saved = parseInt(localStorage.getItem("level") ?? "3");
+        return saved;
+    });
     const [boxScoreIndex, setBoxScoreIndex] = useState<number>();
 
     useEffect(() => {
@@ -152,12 +174,51 @@ export default function App() {
         localStorage.setItem("sportLeague", sportLeague);
     }, [sportLeague]);
 
+    useEffect(() => {
+        localStorage.setItem("level", level.toString());
+    }, [level]);
+
     const handleNavbarSelect = (value: string) => {
         setPage(value);
+        window.scrollTo({ top: 0 });
     };
 
     const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setsportLeague(e.target.value);
+    };
+
+    const handleTableClick = async (id: string) => {
+        if (!id) return;
+
+        const response = await fetch(
+            `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/teams/${id}/schedule`,
+        );
+        const data = await response.json();
+        console.log(data);
+        setScoreboards(data.events);
+
+        const fetchLiveGame = async (teamID: string) => {
+            const response = await fetch(
+                `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
+            );
+            const data = await response.json();
+            const liveGame = data.events.find((event: Event) =>
+                event.competitions[0].competitors.some(
+                    (competitor) => competitor.team.id === teamID,
+                ),
+            );
+
+            if (liveGame) {
+                setScoreboards((prevSchedule) =>
+                    prevSchedule.map((game) =>
+                        game.id === liveGame.id ? liveGame : game,
+                    ),
+                );
+            }
+        };
+        fetchLiveGame(id);
+        setTeamScores(true);
+        setPage("Games");
     };
 
     const openGameInfo = (id: string) => {
@@ -166,15 +227,17 @@ export default function App() {
     };
 
     useEffect(() => {
-        const fetchScoreboards = async () => {
-            const response = await fetch(
-                `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
-            );
-            const data = await response.json();
-            setScoreboards(data.events);
-        };
-        fetchScoreboards();
-    }, [sportLeague]);
+        if (!teamScores) {
+            const fetchScoreboards = async () => {
+                const response = await fetch(
+                    `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
+                );
+                const data = await response.json();
+                setScoreboards(data.events);
+            };
+            fetchScoreboards();
+        }
+    }, [sportLeague, teamScores]);
 
     useEffect(() => {
         const fetchStandings = async () => {
@@ -187,9 +250,32 @@ export default function App() {
         fetchStandings();
     }, [sportLeague, level]);
 
-    const scoresList = scoreboards.map((event) => {
+    useEffect(() => {
+        if (teamScores && page === "Games" && scoreboards.length > 0) {
+            const timeout = setTimeout(() => {
+                if (scrollRef.current)
+                    scrollRef.current.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+            }, 300);
+            return () => clearTimeout(timeout);
+        }
+    }, [scoreboards, teamScores, page]);
+
+    const scoresList = scoreboards.map((event, index) => {
         const competition = event.competitions[0];
         const competitiors = competition.competitors;
+
+        const targetIndex = scoreboards.findIndex(
+            (e) =>
+                e.competitions[0].status.type.name !== "STATUS_FINAL" &&
+                e.competitions[0].status.type.name !== "STATUS_FULL_COMPLETED",
+        );
+
+        const isTarget =
+            index ===
+            (targetIndex === -1 ? scoreboards.length - 1 : targetIndex);
 
         const homeTeam = competitiors.find((c) => c.homeAway === "home");
         const awayTeam = competitiors.find((c) => c.homeAway === "away");
@@ -197,12 +283,13 @@ export default function App() {
         if (!homeTeam || !awayTeam) return null;
 
         return (
-            <Scorecard
-                key={event.id}
-                event={event}
-                sportLeague={sportLeague}
-                handleClick={() => openGameInfo(event.id)}
-            />
+            <div key={event.id} ref={isTarget ? scrollRef : null}>
+                <Scorecard
+                    event={event}
+                    sportLeague={sportLeague}
+                    handleClick={() => openGameInfo(event.id)}
+                />
+            </div>
         );
     });
 
@@ -211,27 +298,34 @@ export default function App() {
 
     let content;
 
-    if (page === "Matches") {
+    if (page === "Games") {
         content = <>{scoresList}</>;
-    } else if (page === "Table") {
+    } else if (page === "Standings") {
         if (!standings) return;
         content = (
             <>
                 <div className="flex items-center justify-between">
-                    <p className="text-black dark:text-white">Sort By:</p>
-                    <Dropdown
-                        selectedValue={level.toString()}
-                        handleChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                            setLevel(parseInt(e.target.value))
-                        }
-                        values={["1", "2", "3"]}
-                        names={["League", "Conference", "Division"]}
-                    />
+                    <div>
+                        <h1 className="text-lg font-bold text-black dark:text-white">
+                            {sportLeague.split("/")[1].toUpperCase()}
+                        </h1>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <p className="text-black dark:text-white">Sort By:</p>
+                        <Dropdown
+                            selectedValue={level.toString()}
+                            handleChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                                setLevel(parseInt(e.target.value))
+                            }
+                            values={["1", "2", "3"]}
+                            names={["League", "Conference", "Division"]}
+                        />
+                    </div>
                 </div>
                 <Table
                     data={standings}
                     cols={currentCols}
-                    sportLeague={sportLeague}
+                    handleClick={handleTableClick}
                 />
             </>
         );
@@ -253,17 +347,30 @@ export default function App() {
                     <h1 className="text-2xl text-black dark:text-white">
                         {page}
                     </h1>
-                    <Dropdown
-                        selectedValue={sportLeague}
-                        handleChange={handleDropdownChange}
-                        values={[
-                            "hockey/nhl",
-                            "football/nfl",
-                            "basketball/nba",
-                            "baseball/mlb",
-                        ]}
-                        names={["NHL", "NFL", "NBA", "MLB"]}
-                    />
+                    {!teamScores || page !== "Games" ? (
+                        <Dropdown
+                            selectedValue={sportLeague}
+                            handleChange={handleDropdownChange}
+                            values={[
+                                "hockey/nhl",
+                                "football/nfl",
+                                "basketball/nba",
+                                "baseball/mlb",
+                            ]}
+                            names={["NHL", "NFL", "NBA", "MLB"]}
+                        />
+                    ) : (
+                        <p
+                            className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
+                            onClick={() => {
+                                setScoreboards([]);
+                                setTeamScores(false);
+                                setPage("Games");
+                            }}
+                        >
+                            X
+                        </p>
+                    )}
                 </div>
             </div>
             <div className="mx-5 mt-2 mb-30 flex flex-col gap-4 md:mr-5 md:mb-5 md:ml-50">

@@ -15,20 +15,20 @@ export default function Navbar({handlePageChange}: NavbarProps) {
                             Home
                         </p>
                     </li>
-                    <li className="flex flex-col items-center gap-2 hover:cursor-pointer hover:opacity-70 md:flex-row" onClick={() => handlePageChange("Matches")}>
+                    <li className="flex flex-col items-center gap-2 hover:cursor-pointer hover:opacity-70 md:flex-row" onClick={() => handlePageChange("Games")}>
                         <span className="material-symbols-rounded text-black dark:text-white">
                             scoreboard
                         </span>
                         <p className="text-xs text-black md:text-lg dark:text-white">
-                            Matches
+                            Games
                         </p>
                     </li>
-                    <li className="flex flex-col items-center gap-2 hover:cursor-pointer hover:opacity-70 md:flex-row" onClick={() => handlePageChange("Table")}>
+                    <li className="flex flex-col items-center gap-2 hover:cursor-pointer hover:opacity-70 md:flex-row" onClick={() => handlePageChange("Standings")}>
                         <span className="material-symbols-rounded text-black dark:text-white">
                             leaderboard
                         </span>
                         <p className="text-xs text-black md:text-lg dark:text-white">
-                            Table
+                            Standings
                         </p>
                     </li>
                     <li className="flex flex-col items-center gap-2 hover:cursor-pointer hover:opacity-70 md:mt-auto md:flex-row" onClick={() => handlePageChange("Settings")}>
