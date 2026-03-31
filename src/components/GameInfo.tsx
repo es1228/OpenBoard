@@ -1,9 +1,9 @@
-import type { Event } from "../App";
+import type { Game } from "../App";
 import Scorecard from "./Scorecard";
 import { useEffect, useState } from "react";
 
 type GameInfoProps = {
-    game: Event;
+    game: Game;
     sportLeague: string;
 };
 
@@ -43,7 +43,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
     return (
         <>
             <Scorecard
-                event={game}
+                game={game}
                 sportLeague={sportLeague}
                 handleClick={() => {}}
             />
@@ -85,7 +85,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                 </table>
             </div>
             <div
-                className={`rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white ${Number.isNaN(homeWinPercentage) && "hidden"} ${game.status.type.name !== "STATUS_IN_PROGRESS" && "hidden"}`}
+                className={`rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white ${Number.isNaN(homeWinPercentage) && "hidden"} ${game.status?.type.name !== "STATUS_IN_PROGRESS" && "hidden"}`}
             >
                 <h1>Win Probability</h1>
                 <div className="mt-2 flex items-center justify-center gap-2">

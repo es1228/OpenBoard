@@ -204,14 +204,14 @@ export default function App() {
             const data = await response.json();
             const liveGame = data.events.find((game: Game) =>
                 game.competitions[0].competitors.some(
-                    (competitor) => competitor.team.id === teamID, 
+                    (competitor) => competitor.team.id === teamID,
                 ),
             );
 
             if (liveGame) {
                 setScoreboards((prevSchedule) =>
                     prevSchedule.map((game) =>
-                        (game.id === liveGame.id) ? liveGame : game,
+                        game.id === liveGame.id ? liveGame : game,
                     ),
                 );
             }
@@ -347,7 +347,25 @@ export default function App() {
                     <h1 className="text-2xl text-black dark:text-white">
                         {page}
                     </h1>
-                    {!teamScores || page !== "Games" ? (
+                    {page === "Overview" ? (
+                        <p
+                            className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
+                            onClick={() => setPage("Games")}
+                        >
+                            X
+                        </p>
+                    ) : teamScores ? (
+                        <p
+                            className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
+                            onClick={() => {
+                                setScoreboards([]);
+                                setTeamScores(false);
+                                setPage("Games");
+                            }}
+                        >
+                            X
+                        </p>
+                    ) : (
                         <Dropdown
                             selectedValue={sportLeague}
                             handleChange={handleDropdownChange}
@@ -359,17 +377,6 @@ export default function App() {
                             ]}
                             names={["NHL", "NFL", "NBA", "MLB"]}
                         />
-                    ) : (
-                        <p
-                            className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
-                            onClick={() => {
-                                setScoreboards([]);
-                                setTeamScores(false);
-                                setPage("Games");
-                            }}
-                        >
-                            X
-                        </p>
                     )}
                 </div>
             </div>
