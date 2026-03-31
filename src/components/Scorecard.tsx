@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { type Event, type Summary } from "../App";
+import { type Game, type Summary } from "../App";
 
 type ScorecardProps = {
-    event: Event;
+    game: Game;
     sportLeague: string;
     handleClick: () => void;
 };
 
 export default function Scorecard({
-    event,
+    game,
     sportLeague,
     handleClick,
 }: ScorecardProps) {
     const [gameSummary, setGameSummary] = useState<Summary>();
 
-    const competition = event.competitions[0];
+    const competition = game.competitions[0];
     const competitiors = competition.competitors;
 
     const homeTeam = competitiors.find((c) => c.homeAway === "home");
@@ -22,16 +22,16 @@ export default function Scorecard({
 
     // useEffect(() => {
     //     const fetchSummary = async () => {
-    //         if (event.status.type.name === "STATUS_IN_PROGRESS") {
+    //         if (game.status.type.name === "STATUS_IN_PROGRESS") {
     //             const response = await fetch(
-    //                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${event.id}`,
+    //                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?game=${game.id}`,
     //             );
     //             const data = await response.json();
     //             setGameSummary(data);
     //         }
     //     };
     //     fetchSummary();
-    // }, [sportLeague, event.id]);
+    // }, [sportLeague, game.id]);
 
     return (
         <>
@@ -40,8 +40,8 @@ export default function Scorecard({
                 onClick={handleClick}
             >
                 <p className="text-black dark:text-white">
-                    {event.status?.type.shortDetail ??
-                        event.competitions[0].status.type.shortDetail}
+                    {game.status?.type.shortDetail ??
+                        game.competitions[0].status?.type.shortDetail}
                 </p>
                 <div className="mt-2 flex items-center justify-between">
                     <div className="flex flex-1 flex-col items-start gap-2">
@@ -58,11 +58,13 @@ export default function Scorecard({
                                 alt={`${awayTeam?.team.name} Logo`}
                             />
                             <h1
-                                className={`text-5xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}
+                                className={`text-4xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}
                             >
-                                {typeof awayTeam?.score === "object"
-                                    ? awayTeam.score.displayValue
-                                    : awayTeam?.score}
+                                {(game.status?.type.name !== "STATUS_SCHEDULED" || game.competitions[0].status?.type.name !== "STATUS_SCHEDULED")
+                                    ? typeof awayTeam?.score === "object"
+                                        ? awayTeam?.score?.displayValue
+                                        : awayTeam?.score
+                                    : ""}
                             </h1>
                         </div>
                         <p className="hidden text-black md:block dark:text-white">
@@ -85,11 +87,13 @@ export default function Scorecard({
                         </h1>
                         <div className="flex items-center gap-4">
                             <h1
-                                className={`text-5xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}
+                                className={`text-4xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}
                             >
-                                {typeof homeTeam?.score === "object"
-                                    ? homeTeam.score.displayValue
-                                    : homeTeam?.score}
+                                {(game.status?.type.name !== "STATUS_SCHEDULED" || game.competitions[0].status?.type.name !== "STATUS_SCHEDULED")
+                                    ? typeof homeTeam?.score === "object"
+                                        ? homeTeam?.score?.displayValue
+                                        : homeTeam?.score
+                                    : ""}
                             </h1>
                             <img
                                 className="w-15 md:w-20"

@@ -7,7 +7,7 @@ import Dropdown from "./components/Dropdown";
 import Table from "./components/Table";
 import GameInfo from "./components/GameInfo";
 
-export type Event = {
+export type Game = {
     id: string;
     competitions: Array<{
         id: number;
@@ -49,14 +49,14 @@ export type Event = {
                 city: string;
             };
         };
-        status: {
+        status?: {
             type: {
                 name: string;
                 shortDetail: string;
             };
         };
     }>;
-    status: {
+    status?: {
         type: {
             name: string;
             shortDetail: string;
@@ -157,7 +157,7 @@ export default function App() {
         const saved = localStorage.getItem("sportLeague");
         return saved ? saved : "hockey/nhl";
     });
-    const [scoreboards, setScoreboards] = useState<Event[]>([]);
+    const [scoreboards, setScoreboards] = useState<Game[]>([]);
     const [teamScores, setTeamScores] = useState<boolean>(false);
     const [standings, setStandings] = useState<Standings>();
     const [level, setLevel] = useState<number>(() => {
@@ -202,16 +202,16 @@ export default function App() {
                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
             );
             const data = await response.json();
-            const liveGame = data.events.find((event: Event) =>
-                event.competitions[0].competitors.some(
-                    (competitor) => competitor.team.id === teamID,
+            const liveGame = data.events.find((game: Game) =>
+                game.competitions[0].competitors.some(
+                    (competitor) => competitor.team.id === teamID, 
                 ),
             );
 
             if (liveGame) {
                 setScoreboards((prevSchedule) =>
                     prevSchedule.map((game) =>
-                        game.id === liveGame.id ? liveGame : game,
+                        (game.id === liveGame.id) ? liveGame : game,
                     ),
                 );
             }
@@ -223,7 +223,7 @@ export default function App() {
 
     const openGameInfo = (id: string) => {
         setPage("Overview");
-        setBoxScoreIndex(scoreboards.findIndex((event) => event.id === id));
+        setBoxScoreIndex(scoreboards.findIndex((game) => game.id === id));
     };
 
     useEffect(() => {
@@ -258,19 +258,19 @@ export default function App() {
                         behavior: "smooth",
                         block: "center",
                     });
-            }, 300);
+            }, 100);
             return () => clearTimeout(timeout);
         }
     }, [scoreboards, teamScores, page]);
 
-    const scoresList = scoreboards.map((event, index) => {
-        const competition = event.competitions[0];
+    const scoresList = scoreboards.map((game, index) => {
+        const competition = game.competitions[0];
         const competitiors = competition.competitors;
 
         const targetIndex = scoreboards.findIndex(
             (e) =>
-                e.competitions[0].status.type.name !== "STATUS_FINAL" &&
-                e.competitions[0].status.type.name !== "STATUS_FULL_COMPLETED",
+                e.competitions[0].status?.type.name !== "STATUS_FINAL" &&
+                e.competitions[0].status?.type.name !== "STATUS_FULL_COMPLETED",
         );
 
         const isTarget =
@@ -283,11 +283,11 @@ export default function App() {
         if (!homeTeam || !awayTeam) return null;
 
         return (
-            <div key={event.id} ref={isTarget ? scrollRef : null}>
+            <div key={game.id} ref={isTarget ? scrollRef : null}>
                 <Scorecard
-                    event={event}
+                    game={game}
                     sportLeague={sportLeague}
-                    handleClick={() => openGameInfo(event.id)}
+                    handleClick={() => openGameInfo(game.id)}
                 />
             </div>
         );
