@@ -20,18 +20,18 @@ export default function Scorecard({
     const homeTeam = competitiors.find((c) => c.homeAway === "home");
     const awayTeam = competitiors.find((c) => c.homeAway === "away");
 
-    useEffect(() => {
-        const fetchSummary = async () => {
-            if (event.status.type.name === "STATUS_IN_PROGRESS") {
-                const response = await fetch(
-                    `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${event.id}`,
-                );
-                const data = await response.json();
-                setGameSummary(data);
-            }
-        };
-        fetchSummary();
-    }, [sportLeague, event.id]);
+    // useEffect(() => {
+    //     const fetchSummary = async () => {
+    //         if (event.status.type.name === "STATUS_IN_PROGRESS") {
+    //             const response = await fetch(
+    //                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${event.id}`,
+    //             );
+    //             const data = await response.json();
+    //             setGameSummary(data);
+    //         }
+    //     };
+    //     fetchSummary();
+    // }, [sportLeague, event.id]);
 
     return (
         <>

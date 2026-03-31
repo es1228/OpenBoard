@@ -19,13 +19,15 @@ export default function Table({ data, cols, handleClick }: TableProps) {
                 <h1 className="text-lg text-black dark:text-white">
                     {group.shortName ?? group.name}
                 </h1>
-                <Table data={group} cols={cols} handleClick={handleClick}/>
+                <Table data={group} cols={cols} handleClick={handleClick} />
             </div>
         ));
     }
 
     if (data.standings?.entries) {
-        return <StandingsTable data={data} cols={cols} handleClick={handleClick} />;
+        return (
+            <StandingsTable data={data} cols={cols} handleClick={handleClick} />
+        );
     }
 }
 
@@ -70,7 +72,14 @@ const StandingsTable = ({ data, cols, handleClick }: TableProps) => {
                                 return statA - statB;
                             })
                             .map((entry) => (
-                                <tr key={entry.team.id} className="hover:opacity-70" onClick={() => entry.team.id && handleClick(entry.team.id)}>
+                                <tr
+                                    key={entry.team.id}
+                                    className="hover:opacity-70"
+                                    onClick={() =>
+                                        entry.team.id &&
+                                        handleClick(entry.team.id)
+                                    }
+                                >
                                     <td className="flex items-center gap-4 py-2 pl-4">
                                         <img
                                             src={entry.team.logos[0].href}
@@ -78,9 +87,18 @@ const StandingsTable = ({ data, cols, handleClick }: TableProps) => {
                                             className="h-10"
                                         />
                                         <div className="flex">
-                                            {entry.stats.find(s => s.name ===
-                                                "clincher") &&
-                                                `${entry.stats[1].displayValue} - \u200b`}
+                                            <p>
+                                                {entry.stats.find(
+                                                    (s) =>
+                                                        s.name === "clincher",
+                                                ) &&
+                                                    entry.stats.find(
+                                                        (s) =>
+                                                            s.name ===
+                                                            "clincher",
+                                                    )?.displayValue +
+                                                        " - \u200b"}
+                                            </p>
                                             <p className="hidden md:block">
                                                 {entry.team.displayName}
                                             </p>
