@@ -193,13 +193,25 @@ export default function App() {
     const handleTableClick = async (id: string) => {
         if (!id) return;
 
+        setSelectedTeamID(id);
+
         const response = await fetch(
             `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/teams/${id}/schedule`,
         );
         const data = await response.json();
-        console.log(data);
-        setScoreboards(data.events);
 
+        setSelectedTeamID((currentTeamID) => {
+            if (currentTeamID !== id) return currentTeamID;
+
+            setScoreboards(data.events);
+            setTeamScores(true);
+            setPage("Games");
+            return id;
+        });
+    };
+
+    useEffect(() => {
+        if (selectedTeamID === "-1" || !teamScores) return;
         const fetchLiveGame = async (teamID: string) => {
             const response = await fetch(
                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
@@ -219,11 +231,8 @@ export default function App() {
                 );
             }
         };
-        fetchLiveGame(id);
-        setSelectedTeamID(id);
-        setTeamScores(true);
-        setPage("Games");
-    };
+        fetchLiveGame(selectedTeamID);
+    }, [selectedTeamID, teamScores, sportLeague]);
 
     const openGameInfo = (id: string) => {
         setPage("Overview");
@@ -358,7 +367,7 @@ export default function App() {
     } else if (page === "Settings") {
         content = (
             <>
-                <div className="rounded-3xl bg-neutral-400/20 p-4 dark:bg-neutral-800/40 flex flex-col gap-4">
+                <div className="flex flex-col gap-4 rounded-3xl bg-neutral-400/20 p-4 dark:bg-neutral-800/40">
                     <h1 className="text-black dark:text-white">Theme</h1>
                     <Dropdown
                         handleChange={(e: ChangeEvent<HTMLSelectElement>) =>
@@ -373,6 +382,47 @@ export default function App() {
         );
     }
 
+    let controlButton;
+
+    if (page === "Overview") {
+        controlButton = (
+            <p
+                className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
+                onClick={() => setPage("Games")}
+            >
+                X
+            </p>
+        );
+    } else if (teamScores) {
+        controlButton = (
+            <p
+                className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
+                onClick={() => {
+                    setScoreboards([]);
+                    setTeamScores(false);
+                    setSelectedTeamID("-1");
+                    if (page !== "Standings") setPage("Standings");
+                }}
+            >
+                X
+            </p>
+        );
+    } else {
+        controlButton = (
+            <Dropdown
+                selectedValue={sportLeague}
+                handleChange={handleDropdownChange}
+                values={[
+                    "hockey/nhl",
+                    "football/nfl",
+                    "basketball/nba",
+                    "baseball/mlb",
+                ]}
+                names={["NHL", "NFL", "NBA", "MLB"]}
+            />
+        );
+    }
+
     return (
         <>
             <Header />
@@ -382,38 +432,7 @@ export default function App() {
                     <h1 className="text-2xl text-black dark:text-white">
                         {page}
                     </h1>
-                    {page === "Overview" ? (
-                        <p
-                            className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
-                            onClick={() => setPage("Games")}
-                        >
-                            X
-                        </p>
-                    ) : teamScores ? (
-                        <p
-                            className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
-                            onClick={() => {
-                                setScoreboards([]);
-                                setTeamScores(false);
-                                setSelectedTeamID("-1");
-                                setPage("Games");
-                            }}
-                        >
-                            X
-                        </p>
-                    ) : (
-                        <Dropdown
-                            selectedValue={sportLeague}
-                            handleChange={handleDropdownChange}
-                            values={[
-                                "hockey/nhl",
-                                "football/nfl",
-                                "basketball/nba",
-                                "baseball/mlb",
-                            ]}
-                            names={["NHL", "NFL", "NBA", "MLB"]}
-                        />
-                    )}
+                    {controlButton}
                 </div>
             </div>
             <div className="mx-5 mt-2 mb-30 flex flex-col gap-4 md:mr-5 md:mb-5 md:ml-50">
