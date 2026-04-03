@@ -167,6 +167,7 @@ export default function App() {
         return saved;
     });
     const [boxScoreIndex, setBoxScoreIndex] = useState<number>();
+    const [selectedTeamID, setSelectedTeamID] = useState<string>("-1");
 
     useEffect(() => {
         if (page !== "Overview") localStorage.setItem("page", page);
@@ -219,6 +220,7 @@ export default function App() {
             }
         };
         fetchLiveGame(id);
+        setSelectedTeamID(id);
         setTeamScores(true);
         setPage("Games");
     };
@@ -342,6 +344,7 @@ export default function App() {
                     data={standings}
                     cols={currentCols}
                     handleClick={handleTableClick}
+                    selectedTeamID={selectedTeamID}
                 />
             </>
         );
@@ -392,6 +395,7 @@ export default function App() {
                             onClick={() => {
                                 setScoreboards([]);
                                 setTeamScores(false);
+                                setSelectedTeamID("-1");
                                 setPage("Games");
                             }}
                         >

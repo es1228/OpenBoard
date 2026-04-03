@@ -4,9 +4,10 @@ type TableProps = {
     data: Standings;
     cols: string[];
     handleClick: (id: string) => void;
+    selectedTeamID: string;
 };
 
-export default function Table({ data, cols, handleClick }: TableProps) {
+export default function Table({ data, cols, handleClick, selectedTeamID }: TableProps) {
     if (!data) {
         return <p className="text-black dark:text-white">Loading...</p>;
     }
@@ -19,19 +20,19 @@ export default function Table({ data, cols, handleClick }: TableProps) {
                 <h1 className="text-lg text-black dark:text-white">
                     {group.shortName ?? group.name}
                 </h1>
-                <Table data={group} cols={cols} handleClick={handleClick} />
+                <Table data={group} cols={cols} handleClick={handleClick} selectedTeamID={selectedTeamID}/>
             </div>
         ));
     }
 
     if (data.standings?.entries) {
         return (
-            <StandingsTable data={data} cols={cols} handleClick={handleClick} />
+            <StandingsTable data={data} cols={cols} handleClick={handleClick} selectedTeamID={selectedTeamID} />
         );
     }
 }
 
-const StandingsTable = ({ data, cols, handleClick }: TableProps) => {
+const StandingsTable = ({ data, cols, handleClick, selectedTeamID }: TableProps) => {
     return (
         <>
             <div className="overflow-x-auto rounded-3xl bg-neutral-400/20 dark:bg-neutral-800/40">
@@ -105,6 +106,9 @@ const StandingsTable = ({ data, cols, handleClick }: TableProps) => {
                                             <p className="block md:hidden">
                                                 {entry.team.abbreviation}
                                             </p>
+                                            {selectedTeamID === entry.team.id && (
+                                                <p>*</p>
+                                            )}
                                         </div>
                                     </td>
                                     {cols.map((key) => {
