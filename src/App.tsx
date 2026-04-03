@@ -118,7 +118,7 @@ export const standingsConfig = {
     "basketball/nba": [
         "wins",
         "losses",
-        "leagueWinPercent",
+        "winPercent",
         "gamesBehind",
         "pointsFor",
         "pointsAgainst",
@@ -128,7 +128,6 @@ export const standingsConfig = {
     "football/nfl": [
         "wins",
         "losses",
-        "leagueWinPercent",
         "gamesBehind",
         "pointsFor",
         "pointsAgainst",
@@ -138,7 +137,7 @@ export const standingsConfig = {
     "baseball/mlb": [
         "wins",
         "losses",
-        "leagueWinPercent",
+        "winPercent",
         "gamesBehind",
         "pointsFor",
         "pointsAgainst",
