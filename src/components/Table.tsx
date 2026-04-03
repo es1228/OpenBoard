@@ -74,7 +74,7 @@ const StandingsTable = ({ data, cols, handleClick }: TableProps) => {
                             .map((entry) => (
                                 <tr
                                     key={entry.team.id}
-                                    className="hover:opacity-70"
+                                    className="hover:opacity-70 hover:cursor-pointer"
                                     onClick={() =>
                                         entry.team.id &&
                                         handleClick(entry.team.id)

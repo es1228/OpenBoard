@@ -148,6 +148,9 @@ export const standingsConfig = {
 };
 
 export default function App() {
+    const [theme, setTheme] = useState<string>(
+        localStorage.getItem("theme") || "system",
+    );
     const scrollRef = useRef<HTMLDivElement>(null);
     const [page, setPage] = useState<string>(() => {
         const saved = localStorage.getItem("page");
@@ -225,6 +228,20 @@ export default function App() {
         setPage("Overview");
         setBoxScoreIndex(scoreboards.findIndex((game) => game.id === id));
     };
+
+    useEffect(() => {
+        const changeTheme = () => {
+            const root = window.document.documentElement;
+            root.classList.remove("light", "dark");
+            if (theme === "system")
+                if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+                    root.classList.add("dark");
+                else root.classList.add("light");
+            else root.classList.add(theme);
+            localStorage.setItem("theme", theme);
+        };
+        changeTheme();
+    }, [theme]);
 
     useEffect(() => {
         if (!teamScores) {
@@ -335,6 +352,22 @@ export default function App() {
                 game={scoreboards[boxScoreIndex!]}
                 sportLeague={sportLeague}
             />
+        );
+    } else if (page === "Settings") {
+        content = (
+            <>
+                <div className="rounded-3xl bg-neutral-400/20 p-4 dark:bg-neutral-800/40 flex flex-col gap-4">
+                    <h1 className="text-black dark:text-white">Theme</h1>
+                    <Dropdown
+                        handleChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                            setTheme(e.target.value)
+                        }
+                        selectedValue={theme}
+                        values={["light", "dark", "system"]}
+                        names={["Light", "Dark", "System"]}
+                    />
+                </div>
+            </>
         );
     }
 

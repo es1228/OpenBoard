@@ -60,7 +60,14 @@ export default function Scorecard({
                             <h1
                                 className={`text-4xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}
                             >
-                                {(game.status?.type.name !== "STATUS_SCHEDULED" || game.competitions[0].status?.type.name !== "STATUS_SCHEDULED")
+                                {(game.status?.type.name !==
+                                    "STATUS_SCHEDULED" &&
+                                    game.status?.type.name !==
+                                        "STATUS_POSTPONED") ||
+                                (game.competitions[0].status?.type.name !==
+                                    "STATUS_SCHEDULED" &&
+                                    game.competitions[0].status?.type.name !==
+                                        "STATUS_POSTPONED")
                                     ? typeof awayTeam?.score === "object"
                                         ? awayTeam?.score?.displayValue
                                         : awayTeam?.score
@@ -89,7 +96,14 @@ export default function Scorecard({
                             <h1
                                 className={`text-4xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}
                             >
-                                {(game.status?.type.name !== "STATUS_SCHEDULED" || game.competitions[0].status?.type.name !== "STATUS_SCHEDULED")
+                                {(game.status?.type.name !==
+                                    "STATUS_SCHEDULED" &&
+                                    game.status?.type.name !==
+                                        "STATUS_POSTPONED") ||
+                                (game.competitions[0].status?.type.name !==
+                                    "STATUS_SCHEDULED" &&
+                                    game.competitions[0].status?.type.name !==
+                                        "STATUS_POSTPONED")
                                     ? typeof homeTeam?.score === "object"
                                         ? homeTeam?.score?.displayValue
                                         : homeTeam?.score
