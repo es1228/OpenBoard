@@ -22,12 +22,17 @@ export default function Scorecard({
 
     // useEffect(() => {
     //     const fetchSummary = async () => {
-    //         if (game.status.type.name === "STATUS_IN_PROGRESS") {
+    //         try {
+    //             if (game.competitions[0].status?.type.name === "STATUS_IN_PROGRESS") {
     //             const response = await fetch(
     //                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?game=${game.id}`,
     //             );
     //             const data = await response.json();
     //             setGameSummary(data);
+    //         }
+    //         }
+    //         catch {
+    //             console.error("Could not fetch game summary")
     //         }
     //     };
     //     fetchSummary();

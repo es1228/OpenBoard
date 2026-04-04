@@ -189,40 +189,47 @@ export default function App() {
 
         setSelectedTeamID(id);
 
-        const response = await fetch(
-            `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/teams/${id}/schedule`,
-        );
-        const data = await response.json();
+        try {
+            const response = await fetch(
+                `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/teams/${id}/schedule`,
+            );
+            const data = await response.json();
+            setSelectedTeamID((currentTeamID) => {
+                if (currentTeamID !== id) return currentTeamID;
 
-        setSelectedTeamID((currentTeamID) => {
-            if (currentTeamID !== id) return currentTeamID;
-
-            setScoreboards(data.events);
-            setTeamScores(true);
-            setPage("Games");
-            return id;
-        });
+                setScoreboards(data.events);
+                setTeamScores(true);
+                setPage("Games");
+                return id;
+            });
+        } catch {
+            console.error("Could not fetch team schedule");
+        }
     };
 
     useEffect(() => {
         if (selectedTeamID === "-1" || !teamScores) return;
         const fetchLiveGame = async (teamID: string) => {
-            const response = await fetch(
-                `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
-            );
-            const data = await response.json();
-            const liveGame = data.events.find((game: Game) =>
-                game.competitions[0].competitors.some(
-                    (competitor) => competitor.team.id === teamID,
-                ),
-            );
-
-            if (liveGame) {
-                setScoreboards((prevSchedule) =>
-                    prevSchedule.map((game) =>
-                        game.id === liveGame.id ? liveGame : game,
+            try {
+                const response = await fetch(
+                    `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
+                );
+                const data = await response.json();
+                const liveGame = data.events.find((game: Game) =>
+                    game.competitions[0].competitors.some(
+                        (competitor) => competitor.team.id === teamID,
                     ),
                 );
+
+                if (liveGame) {
+                    setScoreboards((prevSchedule) =>
+                        prevSchedule.map((game) =>
+                            game.id === liveGame.id ? liveGame : game,
+                        ),
+                    );
+                }
+            } catch {
+                console.error("Could not fetch live games");
             }
         };
         fetchLiveGame(selectedTeamID);
@@ -250,11 +257,15 @@ export default function App() {
     useEffect(() => {
         if (!teamScores) {
             const fetchScoreboards = async () => {
-                const response = await fetch(
-                    `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
-                );
-                const data = await response.json();
-                setScoreboards(data.events);
+                try {
+                    const response = await fetch(
+                        `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
+                    );
+                    const data = await response.json();
+                    setScoreboards(data.events);
+                } catch {
+                    console.error("Could not fetch scoreboards");
+                }
             };
             fetchScoreboards();
         }
@@ -262,11 +273,15 @@ export default function App() {
 
     useEffect(() => {
         const fetchStandings = async () => {
-            const response = await fetch(
-                `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=${level}`,
-            );
-            const data = await response.json();
-            setStandings(data);
+            try {
+                const response = await fetch(
+                    `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=${level}`,
+                );
+                const data = await response.json();
+                setStandings(data);
+            } catch {
+                console.error("Could not fetch standings");
+            }
         };
         fetchStandings();
     }, [sportLeague, level]);
@@ -289,8 +304,7 @@ export default function App() {
         const competitiors = competition.competitors;
 
         const targetIndex = scoreboards.findIndex(
-            (e) =>
-                e.competitions[0].status?.type.name === "STATUS_SCHEDULED"
+            (e) => e.competitions[0].status?.type.name === "STATUS_SCHEDULED",
         );
 
         const isTarget =

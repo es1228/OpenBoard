@@ -15,12 +15,18 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
     const [winProbability, setWinProbability] = useState<winprobability[]>([]);
     useEffect(() => {
         const fetchWinProbability = async () => {
-            const response = await fetch(
-                `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
-            );
-            const data = await response.json();
-            console.log(data);
-            setWinProbability(data.winprobability);
+            if (sportLeague !== "hockey/nhl") {
+                try {
+                    const response = await fetch(
+                        `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
+                    );
+                    const data = await response.json();
+                    console.log(data);
+                    setWinProbability(data.winprobability);
+                } catch {
+                    console.error("Could not fetch win probabilities");
+                }
+            }
         };
         fetchWinProbability();
     }, [game]);
