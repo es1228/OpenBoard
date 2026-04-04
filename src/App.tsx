@@ -296,8 +296,7 @@ export default function App() {
 
         const targetIndex = scoreboards.findIndex(
             (e) =>
-                e.competitions[0].status?.type.name !== "STATUS_FINAL" &&
-                e.competitions[0].status?.type.name !== "STATUS_FULL_COMPLETED",
+                e.competitions[0].status?.type.name === "STATUS_SCHEDULED"
         );
 
         const isTarget =
