@@ -50,8 +50,8 @@ export default function Scorecard({
                             game.competitions[0].status?.type.name ===
                             "STATUS_IN_PROGRESS"
                                 ? "text-green-500"
-                                : game.competitions[0].status?.type.name ===
-                                    "STATUS_POSTPONED"
+                                : (game.competitions[0].status?.type.name ===
+                                    "STATUS_POSTPONED" || game.competitions[0].status?.type.name === "STATUS_RAIN_DELAY")
                                   ? "text-yellow-300"
                                   : "text-black dark:text-white"
                         }`}

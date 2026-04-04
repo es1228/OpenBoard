@@ -21,7 +21,6 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                         `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
                     );
                     const data = await response.json();
-                    console.log(data);
                     setWinProbability(data.winprobability);
                 } catch {
                     console.error("Could not fetch win probabilities");
