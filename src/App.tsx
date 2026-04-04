@@ -56,12 +56,6 @@ export type Game = {
             };
         };
     }>;
-    status?: {
-        type: {
-            name: string;
-            shortDetail: string;
-        };
-    };
 };
 
 export type Standings = {

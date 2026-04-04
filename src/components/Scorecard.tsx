@@ -39,10 +39,27 @@ export default function Scorecard({
                 className="cursor-pointer rounded-3xl bg-neutral-400/20 p-4 backdrop-blur hover:opacity-70 dark:bg-neutral-800/40"
                 onClick={handleClick}
             >
-                <p className="text-black dark:text-white">
-                    {game.status?.type.shortDetail ??
-                        game.competitions[0].status?.type.shortDetail}
-                </p>
+                <div className="w-fit">
+                    <p
+                        className={`${
+                            game.competitions[0].status?.type.name ===
+                            "STATUS_IN_PROGRESS"
+                                ? "text-green-500"
+                                : game.competitions[0].status?.type.name ===
+                                    "STATUS_POSTPONED"
+                                  ? "text-yellow-300"
+                                  : "text-black dark:text-white"
+                        }`}
+                    >
+                        {game.competitions[0].status?.type.shortDetail}
+                    </p>
+                    <hr
+                        className={`h-0.5 rounded-3xl border-none bg-green-500 animate-back-and-forth ${
+                            game.competitions[0].status?.type.name !==
+                                "STATUS_IN_PROGRESS" && "hidden"
+                        }`}
+                    />
+                </div>
                 <div className="mt-2 flex items-center justify-between">
                     <div className="flex flex-1 flex-col items-start gap-2">
                         <h1 className="text-lg text-black dark:text-white">
