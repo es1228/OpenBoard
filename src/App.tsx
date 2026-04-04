@@ -162,6 +162,9 @@ export default function App() {
     });
     const [boxScoreIndex, setBoxScoreIndex] = useState<number>();
     const [selectedTeamID, setSelectedTeamID] = useState<string>("-1");
+    const [scoreboardDates, setScoreboardDates] = useState<string>(
+        new Date().toISOString().slice(0, 10).replaceAll("-", ""),
+    );
 
     useEffect(() => {
         if (page !== "Overview") localStorage.setItem("page", page);
@@ -259,7 +262,7 @@ export default function App() {
             const fetchScoreboards = async () => {
                 try {
                     const response = await fetch(
-                        `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard`,
+                        `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/scoreboard?dates=${scoreboardDates}`,
                     );
                     const data = await response.json();
                     setScoreboards(data.events);
@@ -269,7 +272,7 @@ export default function App() {
             };
             fetchScoreboards();
         }
-    }, [sportLeague, teamScores]);
+    }, [sportLeague, teamScores, scoreboardDates]);
 
     useEffect(() => {
         const fetchStandings = async () => {
@@ -330,10 +333,61 @@ export default function App() {
     const currentCols =
         standingsConfig[sportLeague as keyof typeof standingsConfig];
 
+    const MMDDYYtoDate = (date: string) => {
+        const year = parseInt(date.substring(0, 4));
+        const month = parseInt(date.substring(4, 6));
+        const day = parseInt(date.substring(6, 8));
+        const newDate = new Date(year, month - 1, day);
+        return newDate;
+    };
+
+    const prevDay = () => {
+        const newDate = MMDDYYtoDate(scoreboardDates);
+        newDate.setDate(newDate.getDate() - 1);
+        setScoreboardDates(
+            newDate.toISOString().slice(0, 10).replaceAll("-", ""),
+        );
+        window.scrollTo({ top: 0 });
+    };
+
+    const nextDay = () => {
+        const newDate = MMDDYYtoDate(scoreboardDates);
+        newDate.setDate(newDate.getDate() + 1);
+        setScoreboardDates(
+            newDate.toISOString().slice(0, 10).replaceAll("-", ""),
+        );
+        window.scrollTo({ top: 0 });
+    };
+
     let content;
 
     if (page === "Games") {
-        content = <>{scoresList}</>;
+        content = (
+            <>
+                <div
+                    className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
+                    onClick={prevDay}
+                >
+                    <p className="text-center text-black dark:text-white">
+                        Previous {"\u200b"}
+                        ({new Date(MMDDYYtoDate(scoreboardDates).setDate(MMDDYYtoDate(scoreboardDates).getDate() - 1)).toDateString()})
+                    </p>
+                </div>
+                <p className="text-black dark:text-white">
+                    {MMDDYYtoDate(scoreboardDates).toDateString()}
+                </p>
+                {scoresList}
+                <div
+                    className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
+                    onClick={nextDay}
+                >
+                    <p className="text-center text-black dark:text-white">
+                        Next
+                        ({new Date(MMDDYYtoDate(scoreboardDates).setDate(MMDDYYtoDate(scoreboardDates).getDate() + 1)).toDateString()})
+                    </p>
+                </div>
+            </>
+        );
     } else if (page === "Standings") {
         if (!standings) return;
         content = (
@@ -435,7 +489,7 @@ export default function App() {
             <Header />
             <Navbar handlePageChange={handleNavbarSelect} />
             <div className="mx-5 mt-20 flex flex-col gap-4 md:ml-50">
-                <div className="flex justify-between">
+                <div className="flex items-center justify-between">
                     <h1 className="text-2xl text-black dark:text-white">
                         {page}
                     </h1>
