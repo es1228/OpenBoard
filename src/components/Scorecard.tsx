@@ -51,7 +51,7 @@ export default function Scorecard({
                             "STATUS_IN_PROGRESS"
                                 ? "text-green-500"
                                 : (game.competitions[0].status?.type.name ===
-                                    "STATUS_POSTPONED" || game.competitions[0].status?.type.name === "STATUS_RAIN_DELAY")
+                                    "STATUS_POSTPONED" || game.competitions[0].status?.type.name === "STATUS_RAIN_DELAY" || game.competitions[0].status?.type.name === "STATUS_DELAYED")
                                   ? "text-yellow-300"
                                   : "text-black dark:text-white"
                         }`}

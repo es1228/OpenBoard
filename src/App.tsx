@@ -503,7 +503,7 @@ export default function App() {
             <Navbar handlePageChange={handleNavbarSelect} />
             <div className="mx-5 mt-20 flex flex-col gap-4 md:ml-50">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl text-black dark:text-white">
+                    <h1 className="text-2xl text-black dark:text-white font-bold">
                         {page}
                     </h1>
                     {controlButton}
