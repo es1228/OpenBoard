@@ -9,6 +9,9 @@ import GameInfo from "./components/GameInfo";
 
 export type Game = {
     id: string;
+    season: {
+        type: number;
+    };
     competitions: Array<{
         id: number;
         date: string;
@@ -369,8 +372,13 @@ export default function App() {
                     onClick={prevDay}
                 >
                     <p className="text-center text-black dark:text-white">
-                        Previous {"\u200b"}
-                        ({new Date(MMDDYYtoDate(scoreboardDates).setDate(MMDDYYtoDate(scoreboardDates).getDate() - 1)).toDateString()})
+                        Previous {"\u200b"}(
+                        {new Date(
+                            MMDDYYtoDate(scoreboardDates).setDate(
+                                MMDDYYtoDate(scoreboardDates).getDate() - 1,
+                            ),
+                        ).toDateString()}
+                        )
                     </p>
                 </div>
                 <p className="text-black dark:text-white">
@@ -382,8 +390,13 @@ export default function App() {
                     onClick={nextDay}
                 >
                     <p className="text-center text-black dark:text-white">
-                        Next
-                        ({new Date(MMDDYYtoDate(scoreboardDates).setDate(MMDDYYtoDate(scoreboardDates).getDate() + 1)).toDateString()})
+                        Next (
+                        {new Date(
+                            MMDDYYtoDate(scoreboardDates).setDate(
+                                MMDDYYtoDate(scoreboardDates).getDate() + 1,
+                            ),
+                        ).toDateString()}
+                        )
                     </p>
                 </div>
             </>

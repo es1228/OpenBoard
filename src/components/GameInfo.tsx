@@ -45,6 +45,15 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
         (c) => c.homeAway === "home",
     );
 
+    const periodFormatter = (sport: string, period: number, seasonType: number) => {
+        if (sport === "hockey/nhl" && period === 4) return "OT"
+        else if (sport === "hockey/nhl" && period === 5 && seasonType !== 3) return "SO"
+        else if (sport === "hockey/nhl" && period > 4 && seasonType === 3) return `OT${period - 3}`
+        else if ((sport === "basketball/nba" || sport === "football/nfl") && period === 5) return "OT"
+        else if ((sport === "basketball/nba" || sport === "football/nfl") && period > 5) return `OT${period - 4}`
+        else return period;
+    }
+
     return (
         <>
             <Scorecard
@@ -60,9 +69,10 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                             <th className="text-left">Team</th>
                             {awayTeam?.linescores?.map((linescore) => (
                                 <th className="w-10 text-center">
-                                    {linescore.period}
+                                    {periodFormatter(sportLeague, linescore.period, game.season.type)}
                                 </th>
                             ))}
+                            <th className="w-10 text-center">{sportLeague === "baseball/mlb" ? "R" : "T"}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,6 +85,11 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                     {linescore.displayValue}
                                 </td>
                             ))}
+                            <td className="text-center font-bold">
+                                {typeof awayTeam?.score === "object"
+                                    ? awayTeam?.score?.displayValue
+                                    : awayTeam?.score}
+                            </td>
                         </tr>
                         <tr>
                             <td className="text-left">
@@ -85,6 +100,16 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                     {linescore.displayValue}
                                 </td>
                             ))}
+                            {(homeTeam?.linescores?.length! < awayTeam?.linescores?.length!) && (
+                                <td className="text-center">
+                                    -
+                                </td>
+                            )}
+                            <td className="text-center font-bold">
+                                {typeof homeTeam?.score === "object"
+                                    ? homeTeam?.score?.displayValue
+                                    : homeTeam?.score}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
