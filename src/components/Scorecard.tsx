@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { type Game, type Summary } from "../App";
+import { type Game} from "../App";
 
 type ScorecardProps = {
     game: Game;
@@ -9,34 +8,14 @@ type ScorecardProps = {
 
 export default function Scorecard({
     game,
-    sportLeague,
     handleClick,
 }: ScorecardProps) {
-    const [gameSummary, setGameSummary] = useState<Summary>();
 
     const competition = game.competitions[0];
     const competitiors = competition.competitors;
 
     const homeTeam = competitiors.find((c) => c.homeAway === "home");
     const awayTeam = competitiors.find((c) => c.homeAway === "away");
-
-    // useEffect(() => {
-    //     const fetchSummary = async () => {
-    //         try {
-    //             if (game.competitions[0].status?.type.name === "STATUS_IN_PROGRESS") {
-    //             const response = await fetch(
-    //                 `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?game=${game.id}`,
-    //             );
-    //             const data = await response.json();
-    //             setGameSummary(data);
-    //         }
-    //         }
-    //         catch {
-    //             console.error("Could not fetch game summary")
-    //         }
-    //     };
-    //     fetchSummary();
-    // }, [sportLeague, game.id]);
 
     return (
         <>
@@ -45,23 +24,23 @@ export default function Scorecard({
                 onClick={handleClick}
             >
                 <div className="w-fit">
-                    <p
+                    <h1
                         className={`${
-                            game.competitions[0].status?.type.name ===
-                            "STATUS_IN_PROGRESS"
+                            (competition.status?.type.name ===
+                            "STATUS_IN_PROGRESS" || competition.status?.type.name === "STATUS_END_PERIOD")
                                 ? "text-green-500"
-                                : (game.competitions[0].status?.type.name ===
-                                    "STATUS_POSTPONED" || game.competitions[0].status?.type.name === "STATUS_RAIN_DELAY" || game.competitions[0].status?.type.name === "STATUS_DELAYED")
+                                : (competition.status?.type.name ===
+                                    "STATUS_POSTPONED" || competition.status?.type.name === "STATUS_RAIN_DELAY" || competition.status?.type.name === "STATUS_DELAYED")
                                   ? "text-yellow-300"
-                                  : "text-black dark:text-white"
+                                  : `text-black dark:text-white ${competition.status?.type.name === "STATUS_FINAL" && "font-bold"}`
                         }`}
                     >
-                        {game.competitions[0].status?.type.shortDetail}
-                    </p>
+                        {competition.status?.type.shortDetail}
+                    </h1>
                     <hr
                         className={`h-0.5 rounded-3xl border-none bg-green-500 animate-back-and-forth ${
-                            game.competitions[0].status?.type.name !==
-                                "STATUS_IN_PROGRESS" && "hidden"
+                            (competition.status?.type.name !==
+                                "STATUS_IN_PROGRESS" && competition.status?.type.name !== "STATUS_END_PERIOD") && "hidden"
                         }`}
                     />
                 </div>
@@ -82,9 +61,9 @@ export default function Scorecard({
                             <h1
                                 className={`text-4xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}
                             >
-                                {game.competitions[0].status?.type.name !==
+                                {competition.status?.type.name !==
                                     "STATUS_SCHEDULED" &&
-                                game.competitions[0].status?.type.name !==
+                                competition.status?.type.name !==
                                     "STATUS_POSTPONED"
                                     ? typeof awayTeam?.score === "object"
                                         ? awayTeam?.score?.displayValue
@@ -114,9 +93,9 @@ export default function Scorecard({
                             <h1
                                 className={`text-4xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}
                             >
-                                {game.competitions[0].status?.type.name !==
+                                {competition.status?.type.name !==
                                     "STATUS_SCHEDULED" &&
-                                game.competitions[0].status?.type.name !==
+                                competition.status?.type.name !==
                                     "STATUS_POSTPONED"
                                     ? typeof homeTeam?.score === "object"
                                         ? homeTeam?.score?.displayValue
@@ -144,10 +123,6 @@ export default function Scorecard({
                         </p>
                     </div>
                 </div>
-                <p className="text-center text-black dark:text-white">
-                    {gameSummary?.plays?.[gameSummary.plays.length - 1]?.text ??
-                        ""}
-                </p>
             </div>
         </>
     );

@@ -1,4 +1,4 @@
-import type { Game } from "../App";
+import { type Summary, type Game } from "../App";
 import Scorecard from "./Scorecard";
 import { useEffect, useState } from "react";
 
@@ -13,6 +13,8 @@ type winprobability = {
 
 export default function GameInfo({ game, sportLeague }: GameInfoProps) {
     const [winProbability, setWinProbability] = useState<winprobability[]>([]);
+    const [gameSummary, setGameSummary] = useState<Summary>();
+
     useEffect(() => {
         const fetchWinProbability = async () => {
             if (sportLeague !== "hockey/nhl") {
@@ -21,6 +23,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                         `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
                     );
                     const data = await response.json();
+                    console.log(data);
                     setWinProbability(data.winprobability);
                 } catch {
                     console.error("Could not fetch win probabilities");
@@ -29,6 +32,21 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
         };
         fetchWinProbability();
     }, [game]);
+
+    useEffect(() => {
+        const fetchSummary = async () => {
+            try {
+                const response = await fetch(
+                    `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
+                );
+                const data = await response.json();
+                setGameSummary(data);
+            } catch {
+                console.error("Could not fetch game summary");
+            }
+        };
+        fetchSummary();
+    }, [sportLeague, game.id]);
 
     const homeWinPercentage =
         Math.round(
@@ -45,14 +63,28 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
         (c) => c.homeAway === "home",
     );
 
-    const periodFormatter = (sport: string, period: number, seasonType: number) => {
-        if (sport === "hockey/nhl" && period === 4) return "OT"
-        else if (sport === "hockey/nhl" && period === 5 && seasonType !== 3) return "SO"
-        else if (sport === "hockey/nhl" && period > 4 && seasonType === 3) return `OT${period - 3}`
-        else if ((sport === "basketball/nba" || sport === "football/nfl") && period === 5) return "OT"
-        else if ((sport === "basketball/nba" || sport === "football/nfl") && period > 5) return `OT${period - 4}`
+    const periodFormatter = (
+        sport: string,
+        period: number,
+        seasonType: number,
+    ) => {
+        if (sport === "hockey/nhl" && period === 4) return "OT";
+        else if (sport === "hockey/nhl" && period === 5 && seasonType !== 3)
+            return "SO";
+        else if (sport === "hockey/nhl" && period > 4 && seasonType === 3)
+            return `OT${period - 3}`;
+        else if (
+            (sport === "basketball/nba" || sport === "football/nfl") &&
+            period === 5
+        )
+            return "OT";
+        else if (
+            (sport === "basketball/nba" || sport === "football/nfl") &&
+            period > 5
+        )
+            return `OT${period - 4}`;
         else return period;
-    }
+    };
 
     return (
         <>
@@ -62,17 +94,29 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                 handleClick={() => {}}
             />
             <div className="rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
-                <p>Box Score</p>
+                <h1 className="font-bold">Line Score</h1>
                 <table className="mt-2 w-full border-collapse">
                     <thead>
                         <tr>
                             <th className="text-left">Team</th>
                             {awayTeam?.linescores?.map((linescore) => (
                                 <th className="w-10 text-center">
-                                    {periodFormatter(sportLeague, linescore.period, game.season.type)}
+                                    {periodFormatter(
+                                        sportLeague,
+                                        linescore.period,
+                                        game.season.type,
+                                    )}
                                 </th>
                             ))}
-                            <th className="w-10 text-center">{sportLeague === "baseball/mlb" ? "R" : "T"}</th>
+                            <th className="w-10 text-center">
+                                {homeTeam?.linescores &&
+                                    homeTeam?.statistics.find(
+                                        (s) =>
+                                            s.name === "runs" ||
+                                            s.name === "goals" ||
+                                            s.name === "points",
+                                    )?.abbreviation}
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,9 +130,13 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                 </td>
                             ))}
                             <td className="text-center font-bold">
-                                {typeof awayTeam?.score === "object"
-                                    ? awayTeam?.score?.displayValue
-                                    : awayTeam?.score}
+                                {awayTeam?.linescores &&
+                                    awayTeam?.statistics.find(
+                                        (s) =>
+                                            s.name === "runs" ||
+                                            s.name === "goals" ||
+                                            s.name === "points",
+                                    )?.displayValue}
                             </td>
                         </tr>
                         <tr>
@@ -100,15 +148,18 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                     {linescore.displayValue}
                                 </td>
                             ))}
-                            {(homeTeam?.linescores?.length! < awayTeam?.linescores?.length!) && (
-                                <td className="text-center">
-                                    -
-                                </td>
+                            {homeTeam?.linescores?.length! <
+                                awayTeam?.linescores?.length! && (
+                                <td className="text-center">-</td>
                             )}
                             <td className="text-center font-bold">
-                                {typeof homeTeam?.score === "object"
-                                    ? homeTeam?.score?.displayValue
-                                    : homeTeam?.score}
+                                {homeTeam?.linescores &&
+                                    homeTeam?.statistics.find(
+                                        (s) =>
+                                            s.name === "runs" ||
+                                            s.name === "goals" ||
+                                            s.name === "points",
+                                    )?.displayValue}
                             </td>
                         </tr>
                     </tbody>
@@ -117,13 +168,13 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
             <div
                 className={`rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white ${Number.isNaN(homeWinPercentage) && "hidden"} ${game.competitions[0].status?.type.name !== "STATUS_IN_PROGRESS" && "hidden"}`}
             >
-                <h1>Win Probability</h1>
+                <h1 className="font-bold">Win Probability</h1>
                 <div className="mt-2 flex items-center justify-center gap-2">
                     <div>
                         <p>{awayTeam?.team.abbreviation}</p>
                         <p>{awayWinPercentage}%</p>
                     </div>
-                    <div className="flex h-2 w-full rounded-3xl">
+                    <div className="flex h-2 w-full gap-0.5 rounded-3xl">
                         <div
                             className={`${awayWinPercentage === 100 ? "rounded-3xl" : "rounded-l-3xl"}`}
                             style={{
@@ -153,6 +204,39 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                     </div>
                 </div>
             </div>
+            {gameSummary?.rosters.map((roster) => (
+                <div className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
+                    <h1 className="font-bold">{roster.team.displayName}</h1>
+                    <div className="overflow-x-auto">
+                        <table className="w-max min-w-full tabular-nums">
+                        <thead>
+                            <tr>
+                                <th className="text-left min-w-40">Player</th>
+                                {roster.roster[0].stats.map((stat) => (
+                                    <th className="w-10 text-center">
+                                        {stat.shortDisplayName}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {roster.roster.map((player) => (
+                                <tr className="text-nowrap">
+                                    <td className="text-left">
+                                        {`${player.athlete.shortName} - ${player.position.abbreviation} - #${player.jersey}`}
+                                    </td>
+                                    {player.stats.map((stat) => (
+                                        <td className="w-10 text-center">
+                                            {stat.displayValue}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            ))}
             <p className="text-black dark:text-white">
                 Venue:{" "}
                 {`${game?.competitions[0].venue.fullName}, ${game?.competitions[0].venue.address.city}`}

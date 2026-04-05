@@ -35,6 +35,11 @@ export type Game = {
                 displayValue: string;
                 period: number;
             }>;
+            statistics: Array<{
+                name: string;
+                abbreviation: string;
+                displayValue: string;
+            }>;
             records: Array<{
                 summary: string;
             }>;
@@ -95,6 +100,29 @@ export type StandingEntry = {
 export type Summary = {
     plays: Array<{
         text: string;
+    }>;
+    rosters: Array<{
+        homeAway: string;
+        roster: Array<{
+            athlete: {
+                shortName: string;
+                headshot: {
+                    href: string;
+                }
+            };
+            position: {
+                    abbreviation: string;
+                };
+            stats: Array<{
+                shortDisplayName: string;
+                displayValue: string;
+            }>;
+            jersey: string;
+        }>;
+        team: {
+            displayName: string;
+            logo: string;
+        };
     }>;
 };
 
@@ -503,7 +531,7 @@ export default function App() {
             <Navbar handlePageChange={handleNavbarSelect} />
             <div className="mx-5 mt-20 flex flex-col gap-4 md:ml-50">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl text-black dark:text-white font-bold">
+                    <h1 className="text-2xl font-bold text-black dark:text-white">
                         {page}
                     </h1>
                     {controlButton}
