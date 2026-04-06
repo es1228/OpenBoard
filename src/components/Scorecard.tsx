@@ -32,7 +32,7 @@ export default function Scorecard({
                                 : (competition.status?.type.name ===
                                     "STATUS_POSTPONED" || competition.status?.type.name === "STATUS_RAIN_DELAY" || competition.status?.type.name === "STATUS_DELAYED")
                                   ? "text-yellow-300"
-                                  : `text-black dark:text-white ${competition.status?.type.name === "STATUS_FINAL" && "font-bold"}`
+                                  : `text-black dark:text-white ${(competition.status?.type.name === "STATUS_FINAL" || competition.status?.type.name === "STATUS_FULL_TIME") && "font-bold"}`
                         }`}
                     >
                         {competition.status?.type.shortDetail}

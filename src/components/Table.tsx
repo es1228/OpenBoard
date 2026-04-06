@@ -36,7 +36,7 @@ const StandingsTable = ({ data, cols, handleClick, selectedTeamID }: TableProps)
     return (
         <>
             <div className="overflow-x-auto rounded-3xl bg-neutral-400/20 dark:bg-neutral-800/40">
-                <table className="w-full min-w-150 table-auto border-collapse">
+                <table className="w-full min-w-150 table-auto border-collapse tabular-nums">
                     <thead>
                         <tr>
                             <th className="p-4 text-black dark:text-white">

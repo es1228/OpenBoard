@@ -40,7 +40,6 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                     `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
                 );
                 const data = await response.json();
-                console.log(data);
                 setGameSummary(data);
             } catch {
                 console.error("Could not fetch game summary");
@@ -110,13 +109,12 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                 </th>
                             ))}
                             <th className="w-10 text-center">
-                                {homeTeam?.linescores &&
-                                    homeTeam?.statistics.find(
-                                        (s) =>
-                                            s.name === "runs" ||
-                                            s.name === "goals" ||
-                                            s.name === "points",
-                                    )?.abbreviation}
+                                {homeTeam?.statistics.find(
+                                    (s) =>
+                                        s.name === "runs" ||
+                                        s.name === "goals" ||
+                                        s.name === "points",
+                                )?.abbreviation ?? "T"}
                             </th>
                         </tr>
                     </thead>
@@ -131,13 +129,15 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                 </td>
                             ))}
                             <td className="text-center font-bold">
-                                {awayTeam?.linescores &&
-                                    awayTeam?.statistics.find(
-                                        (s) =>
-                                            s.name === "runs" ||
-                                            s.name === "goals" ||
-                                            s.name === "points",
-                                    )?.displayValue}
+                                {(awayTeam?.statistics.find(
+                                    (s) =>
+                                        s.name === "runs" ||
+                                        s.name === "goals" ||
+                                        s.name === "points",
+                                )?.displayValue ??
+                                typeof awayTeam?.score === "object")
+                                    ? awayTeam?.score?.displayValue
+                                    : awayTeam?.score}
                             </td>
                         </tr>
                         <tr>
@@ -154,13 +154,15 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                 <td className="text-center">-</td>
                             )}
                             <td className="text-center font-bold">
-                                {homeTeam?.linescores &&
-                                    homeTeam?.statistics.find(
-                                        (s) =>
-                                            s.name === "runs" ||
-                                            s.name === "goals" ||
-                                            s.name === "points",
-                                    )?.displayValue}
+                                {(homeTeam?.statistics.find(
+                                    (s) =>
+                                        s.name === "runs" ||
+                                        s.name === "goals" ||
+                                        s.name === "points",
+                                )?.displayValue ??
+                                typeof homeTeam?.score === "object")
+                                    ? homeTeam?.score?.displayValue
+                                    : homeTeam?.score}
                             </td>
                         </tr>
                     </tbody>
@@ -205,30 +207,30 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                     </div>
                 </div>
             </div>
-            {gameSummary?.boxscore.players.map((player) => (
-                <div className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
-                    <h1 className="font-bold">{player.team.displayName}</h1>
-                    <div className="overflow-x-auto">
-                        <table className="w-max min-w-full tabular-nums">
-                            {player.statistics.map((stat) => (
-                                <>
-                                    <thead>
-                                        <tr>
-                                            <th className="min-w-40 text-left capitalize">
-                                                {stat.type ?? stat.name ?? "Playersfi"}
-                                            </th>
-                                            {stat.labels.map(
-                                                (label) => (
+            {gameSummary?.boxscore.players &&
+                gameSummary?.boxscore.players.map((player) => (
+                    <div className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
+                        <h1 className="font-bold">{player.team.displayName}</h1>
+                        <div className="overflow-x-auto">
+                            <table className="w-max min-w-full tabular-nums">
+                                {player.statistics.map((stat) => (
+                                    <>
+                                        <thead>
+                                            <tr>
+                                                <th className="min-w-40 text-left capitalize">
+                                                    {stat.type ??
+                                                        stat.name ??
+                                                        "Players"}
+                                                </th>
+                                                {stat.labels.map((label) => (
                                                     <th className="w-15 text-center">
                                                         {label.toString()}
                                                     </th>
-                                                ),
-                                            )}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {stat.athletes.map(
-                                            (player) => (
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {stat.athletes.map((player) => (
                                                 <tr className="text-nowrap">
                                                     <td className="text-left">
                                                         {`${player.athlete.shortName} - ${player.athlete.position.abbreviation}`}
@@ -241,16 +243,15 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                                         ),
                                                     )}
                                                 </tr>
-                                            ),
-                                        )}
-                                        <p>&nbsp;</p>
-                                    </tbody>
-                                </>
-                            ))}
-                        </table>
+                                            ))}
+                                            <p>&nbsp;</p>
+                                        </tbody>
+                                    </>
+                                ))}
+                            </table>
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
             <p className="text-black dark:text-white">
                 Venue:{" "}
                 {`${game?.competitions[0].venue.fullName}, ${game?.competitions[0].venue.address.city}`}

@@ -160,6 +160,16 @@ export const standingsConfig = {
         "pointDifferential",
         "streak",
     ],
+    "soccer/usa.1": [
+        "points",
+        "gamesPlayed",
+        "wins",
+        "losses",
+        "ties",
+        "pointsFor",
+        "pointsAgainst",
+        "pointDifferential",
+    ],
     "baseball/mlb": [
         "wins",
         "losses",
@@ -197,6 +207,16 @@ export default function App() {
     const [scoreboardDates, setScoreboardDates] = useState<string>(
         new Date().toLocaleString("sv").slice(0, 10).replaceAll("-", ""),
     );
+
+    const sportValues = [
+        "hockey/nhl",
+        "football/nfl",
+        "basketball/nba",
+        "soccer/usa.1",
+        "baseball/mlb",
+    ];
+
+    const sportNames = ["NHL", "NFL", "NBA", "MLS", "MLB"];
 
     useEffect(() => {
         if (page !== "Overview") localStorage.setItem("page", page);
@@ -437,7 +457,7 @@ export default function App() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-lg font-bold text-black dark:text-white">
-                            {sportLeague.split("/")[1].toUpperCase()}
+                            {sportNames[sportValues.indexOf(sportLeague)]}
                         </h1>
                     </div>
                     <div className="flex items-center gap-4">
@@ -515,13 +535,8 @@ export default function App() {
             <Dropdown
                 selectedValue={sportLeague}
                 handleChange={handleDropdownChange}
-                values={[
-                    "hockey/nhl",
-                    "football/nfl",
-                    "basketball/nba",
-                    "baseball/mlb",
-                ]}
-                names={["NHL", "NFL", "NBA", "MLB"]}
+                values={sportValues}
+                names={sportNames}
             />
         );
     }
