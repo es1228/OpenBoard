@@ -7,7 +7,12 @@ type TableProps = {
     selectedTeamID: string;
 };
 
-export default function Table({ data, cols, handleClick, selectedTeamID }: TableProps) {
+export default function Table({
+    data,
+    cols,
+    handleClick,
+    selectedTeamID,
+}: TableProps) {
     if (!data) {
         return <p className="text-black dark:text-white">Loading...</p>;
     }
@@ -20,19 +25,34 @@ export default function Table({ data, cols, handleClick, selectedTeamID }: Table
                 <h1 className="text-lg text-black dark:text-white">
                     {group.shortName ?? group.name}
                 </h1>
-                <Table data={group} cols={cols} handleClick={handleClick} selectedTeamID={selectedTeamID}/>
+                <Table
+                    data={group}
+                    cols={cols}
+                    handleClick={handleClick}
+                    selectedTeamID={selectedTeamID}
+                />
             </div>
         ));
     }
 
     if (data.standings?.entries) {
         return (
-            <StandingsTable data={data} cols={cols} handleClick={handleClick} selectedTeamID={selectedTeamID} />
+            <StandingsTable
+                data={data}
+                cols={cols}
+                handleClick={handleClick}
+                selectedTeamID={selectedTeamID}
+            />
         );
     }
 }
 
-const StandingsTable = ({ data, cols, handleClick, selectedTeamID }: TableProps) => {
+const StandingsTable = ({
+    data,
+    cols,
+    handleClick,
+    selectedTeamID,
+}: TableProps) => {
     return (
         <>
             <div className="overflow-x-auto rounded-3xl bg-neutral-400/20 dark:bg-neutral-800/40">
@@ -75,7 +95,7 @@ const StandingsTable = ({ data, cols, handleClick, selectedTeamID }: TableProps)
                             .map((entry) => (
                                 <tr
                                     key={entry.team.id}
-                                    className="hover:opacity-70 hover:cursor-pointer"
+                                    className="hover:cursor-pointer hover:opacity-70"
                                     onClick={() =>
                                         entry.team.id &&
                                         handleClick(entry.team.id)
@@ -100,15 +120,16 @@ const StandingsTable = ({ data, cols, handleClick, selectedTeamID }: TableProps)
                                                     )?.displayValue +
                                                         " - \u200b"}
                                             </p>
-                                            <p className="hidden md:block">
+                                            <p
+                                                className={`hidden md:block ${selectedTeamID === entry.team.id && "underline"}`}
+                                            >
                                                 {entry.team.displayName}
                                             </p>
-                                            <p className="block md:hidden">
+                                            <p
+                                                className={`block md:hidden ${selectedTeamID === entry.team.id && "underline"}`}
+                                            >
                                                 {entry.team.abbreviation}
                                             </p>
-                                            {selectedTeamID === entry.team.id && (
-                                                <p>*</p>
-                                            )}
                                         </div>
                                     </td>
                                     {cols.map((key) => {

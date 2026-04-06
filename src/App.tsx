@@ -38,7 +38,7 @@ export type Game = {
                 displayValue: string;
                 period: number;
             }>;
-            statistics: Array<{
+            statistics?: Array<{
                 name: string;
                 abbreviation: string;
                 displayValue: string;
