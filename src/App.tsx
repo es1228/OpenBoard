@@ -18,6 +18,9 @@ export type Game = {
         notes: Array<{
             text: string;
         }>;
+        series?: {
+            title: string;
+        }
         competitors: Array<{
             homeAway: string;
             winner: boolean;
@@ -262,6 +265,7 @@ export default function App() {
 
     const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setSportLeague(e.target.value);
+        setScoreboardDates(new Date().toLocaleString("sv").slice(0, 10).replaceAll("-", ""))
     };
 
     const handleTableClick = async (id: string) => {

@@ -20,6 +20,7 @@ export default function Scorecard({ game, handleClick }: ScorecardProps) {
                 onClick={handleClick}
             >
                 <div className="w-fit">
+                    <h1 className="text-black dark:text-white font-bold">{competition.series?.title}</h1>
                     <h1
                         className={`${
                             competition.status?.type.name ===
@@ -86,8 +87,7 @@ export default function Scorecard({ game, handleClick }: ScorecardProps) {
                         </p>
                         <p className="text-black dark:text-white">
                             {awayTeam?.records?.[0]?.summary ??
-                                awayTeam?.record?.[0]?.displayValue ??
-                                "\u200b"}
+                                awayTeam?.record?.[0]?.displayValue}
                         </p>
                     </div>
                     <p className="mb-8 text-5xl text-black dark:text-white">
@@ -127,8 +127,7 @@ export default function Scorecard({ game, handleClick }: ScorecardProps) {
                         </p>
                         <p className="text-black dark:text-white">
                             {homeTeam?.records?.[0]?.summary ??
-                                homeTeam?.record?.[0]?.displayValue ??
-                                "\u200b"}
+                                homeTeam?.record?.[0]?.displayValue}
                         </p>
                     </div>
                 </div>
