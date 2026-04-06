@@ -40,6 +40,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                     `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
                 );
                 const data = await response.json();
+                console.log(data);
                 setGameSummary(data);
             } catch {
                 console.error("Could not fetch game summary");
@@ -214,12 +215,12 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                     <thead>
                                         <tr>
                                             <th className="min-w-40 text-left capitalize">
-                                                {stat.type}
+                                                {stat.type ?? stat.name ?? "Playersfi"}
                                             </th>
-                                            {stat.names.map(
-                                                (name) => (
+                                            {stat.labels.map(
+                                                (label) => (
                                                     <th className="w-15 text-center">
-                                                        {name.toString()}
+                                                        {label.toString()}
                                                     </th>
                                                 ),
                                             )}
@@ -230,7 +231,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                             (player) => (
                                                 <tr className="text-nowrap">
                                                     <td className="text-left">
-                                                        {`${player.athlete.shortName} - ${player.position.abbreviation}`}
+                                                        {`${player.athlete.shortName} - ${player.athlete.position.abbreviation}`}
                                                     </td>
                                                     {player.stats.map(
                                                         (stat) => (
@@ -242,8 +243,8 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                                 </tr>
                                             ),
                                         )}
+                                        <p>&nbsp;</p>
                                     </tbody>
-                                    <p>&nbsp;</p>
                                 </>
                             ))}
                         </table>

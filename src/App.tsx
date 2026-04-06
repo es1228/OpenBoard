@@ -110,18 +110,19 @@ export type Summary = {
                         headshot: {
                             href: string;
                         };
+                        position: {
+                            abbreviation: string;
+                        };
                     };
-                    position: {
-                        abbreviation: string;
-                    }
-                    stats: Array<{}>
+                    stats: Array<{}>;
                 }>;
-                names: Array<{}>
-                type: string;
+                labels: Array<{}>;
+                type?: string;
+                name?: string;
             }>;
             team: {
                 displayName: string;
-            }
+            };
         }>;
     };
 };
