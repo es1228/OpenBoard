@@ -1,4 +1,4 @@
-import { type Game} from "../App";
+import { type Game } from "../App";
 
 type ScorecardProps = {
     game: Game;
@@ -6,11 +6,7 @@ type ScorecardProps = {
     handleClick: () => void;
 };
 
-export default function Scorecard({
-    game,
-    handleClick,
-}: ScorecardProps) {
-
+export default function Scorecard({ game, handleClick }: ScorecardProps) {
     const competition = game.competitions[0];
     const competitiors = competition.competitors;
 
@@ -26,21 +22,32 @@ export default function Scorecard({
                 <div className="w-fit">
                     <h1
                         className={`${
-                            (competition.status?.type.name ===
-                            "STATUS_IN_PROGRESS" || competition.status?.type.name === "STATUS_END_PERIOD")
+                            competition.status?.type.name ===
+                                "STATUS_IN_PROGRESS" ||
+                            competition.status?.type.name ===
+                                "STATUS_END_PERIOD"
                                 ? "text-green-500"
-                                : (competition.status?.type.name ===
-                                    "STATUS_POSTPONED" || competition.status?.type.name === "STATUS_RAIN_DELAY" || competition.status?.type.name === "STATUS_DELAYED")
+                                : competition.status?.type.name ===
+                                        "STATUS_POSTPONED" ||
+                                    competition.status?.type.name ===
+                                        "STATUS_RAIN_DELAY" ||
+                                    competition.status?.type.name ===
+                                        "STATUS_DELAYED"
                                   ? "text-yellow-300"
-                                  : `text-black dark:text-white ${(competition.status?.type.name === "STATUS_FINAL" || competition.status?.type.name === "STATUS_FULL_TIME") && "font-bold"}`
+                                  : `text-black dark:text-white ${(competition.status?.type.name === "STATUS_FINAL" || competition.status?.type.name === "STATUS_FULL_TIME" || competition.status?.type.name === "STATUS_FINAL_AET" || competition.status?.type.name === "STATUS_FINAL_PEN") && "font-bold"}`
                         }`}
                     >
                         {competition.status?.type.shortDetail}
                     </h1>
                     <hr
-                        className={`h-0.5 rounded-3xl border-none bg-green-500 animate-back-and-forth ${
-                            (competition.status?.type.name !==
-                                "STATUS_IN_PROGRESS" && competition.status?.type.name !== "STATUS_END_PERIOD") && "hidden"
+                        className={`animate-back-and-forth h-0.5 rounded-3xl border-none bg-green-500 ${
+                            competition.status?.type.name !==
+                                "STATUS_IN_PROGRESS" &&
+                            competition.status?.type.name !==
+                                "STATUS_END_PERIOD" &&
+                            competition.status?.type.name !==
+                                "STATUS_HALFTIME" &&
+                            "hidden"
                         }`}
                     />
                 </div>
@@ -78,8 +85,9 @@ export default function Scorecard({
                             {awayTeam?.team.abbreviation}
                         </p>
                         <p className="text-black dark:text-white">
-                            {awayTeam?.records?.[0].summary ??
-                                awayTeam?.record?.[0].displayValue}
+                            {awayTeam?.records?.[0]?.summary ??
+                                awayTeam?.record?.[0]?.displayValue ??
+                                "\u200b"}
                         </p>
                     </div>
                     <p className="mb-8 text-5xl text-black dark:text-white">
@@ -118,11 +126,15 @@ export default function Scorecard({
                             {homeTeam?.team.abbreviation}
                         </p>
                         <p className="text-black dark:text-white">
-                            {homeTeam?.records?.[0].summary ??
-                                homeTeam?.record?.[0].displayValue}
+                            {homeTeam?.records?.[0]?.summary ??
+                                homeTeam?.record?.[0]?.displayValue ??
+                                "\u200b"}
                         </p>
                     </div>
                 </div>
+                <p className="text-center text-black dark:text-white">
+                    {competition?.notes?.[0]?.text}
+                </p>
             </div>
         </>
     );

@@ -15,6 +15,9 @@ export type Game = {
     competitions: Array<{
         id: number;
         date: string;
+        notes: Array<{
+            text: string;
+        }>;
         competitors: Array<{
             homeAway: string;
             winner: boolean;
@@ -160,6 +163,16 @@ export const standingsConfig = {
         "pointDifferential",
         "streak",
     ],
+    "baseball/mlb": [
+        "wins",
+        "losses",
+        "winPercent",
+        "gamesBehind",
+        "pointsFor",
+        "pointsAgainst",
+        "pointDifferential",
+        "streak",
+    ],
     "soccer/usa.1": [
         "points",
         "gamesPlayed",
@@ -170,15 +183,25 @@ export const standingsConfig = {
         "pointsAgainst",
         "pointDifferential",
     ],
-    "baseball/mlb": [
+    "soccer/eng.1": [
+        "points",
+        "gamesPlayed",
         "wins",
         "losses",
-        "winPercent",
-        "gamesBehind",
+        "ties",
         "pointsFor",
         "pointsAgainst",
         "pointDifferential",
-        "streak",
+    ],
+    "soccer/uefa.champions": [
+        "points",
+        "gamesPlayed",
+        "wins",
+        "losses",
+        "ties",
+        "pointsFor",
+        "pointsAgainst",
+        "pointDifferential",
     ],
 };
 
@@ -191,7 +214,7 @@ export default function App() {
         const saved = localStorage.getItem("page");
         return saved ? saved : "Home";
     });
-    const [sportLeague, setsportLeague] = useState<string>(() => {
+    const [sportLeague, setSportLeague] = useState<string>(() => {
         const saved = localStorage.getItem("sportLeague");
         return saved ? saved : "hockey/nhl";
     });
@@ -212,11 +235,13 @@ export default function App() {
         "hockey/nhl",
         "football/nfl",
         "basketball/nba",
-        "soccer/usa.1",
         "baseball/mlb",
+        "soccer/usa.1",
+        "soccer/eng.1",
+        "soccer/uefa.champions",
     ];
 
-    const sportNames = ["NHL", "NFL", "NBA", "MLS", "MLB"];
+    const sportNames = ["NHL", "NFL", "NBA", "MLB", "MLS", "PL", "UCL"];
 
     useEffect(() => {
         if (page !== "Overview") localStorage.setItem("page", page);
@@ -236,7 +261,7 @@ export default function App() {
     };
 
     const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        setsportLeague(e.target.value);
+        setSportLeague(e.target.value);
     };
 
     const handleTableClick = async (id: string) => {
@@ -329,8 +354,11 @@ export default function App() {
     useEffect(() => {
         const fetchStandings = async () => {
             try {
+                let fetchLevel;
+                if (sportLeague.split("/")[0] !== "soccer") fetchLevel = level;
+                else fetchLevel = 3;              
                 const response = await fetch(
-                    `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=${level}`,
+                    `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=${fetchLevel}`,
                 );
                 const data = await response.json();
                 setStandings(data);
@@ -416,38 +444,50 @@ export default function App() {
     if (page === "Games") {
         content = (
             <>
-                <div
-                    className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
-                    onClick={prevDay}
-                >
-                    <p className="text-center text-black dark:text-white">
-                        Previous {"\u200b"}(
-                        {new Date(
-                            MMDDYYtoDate(scoreboardDates).setDate(
-                                MMDDYYtoDate(scoreboardDates).getDate() - 1,
-                            ),
-                        ).toDateString()}
-                        )
-                    </p>
-                </div>
-                <p className="text-black dark:text-white">
-                    {MMDDYYtoDate(scoreboardDates).toDateString()}
-                </p>
+                {!teamScores && (
+                    <>
+                        <div
+                            className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
+                            onClick={prevDay}
+                        >
+                            <p className="text-center text-black dark:text-white">
+                                Previous {"\u200b"}(
+                                {new Date(
+                                    MMDDYYtoDate(scoreboardDates).setDate(
+                                        MMDDYYtoDate(
+                                            scoreboardDates,
+                                        ).getDate() - 1,
+                                    ),
+                                ).toDateString()}
+                                )
+                            </p>
+                        </div>
+                        <p className="text-black dark:text-white">
+                            {MMDDYYtoDate(scoreboardDates).toDateString()}
+                        </p>
+                    </>
+                )}
                 {scoresList}
-                <div
-                    className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
-                    onClick={nextDay}
-                >
-                    <p className="text-center text-black dark:text-white">
-                        Next (
-                        {new Date(
-                            MMDDYYtoDate(scoreboardDates).setDate(
-                                MMDDYYtoDate(scoreboardDates).getDate() + 1,
-                            ),
-                        ).toDateString()}
-                        )
-                    </p>
-                </div>
+                {!teamScores && (
+                    <>
+                        <div
+                            className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
+                            onClick={nextDay}
+                        >
+                            <p className="text-center text-black dark:text-white">
+                                Next (
+                                {new Date(
+                                    MMDDYYtoDate(scoreboardDates).setDate(
+                                        MMDDYYtoDate(
+                                            scoreboardDates,
+                                        ).getDate() + 1,
+                                    ),
+                                ).toDateString()}
+                                )
+                            </p>
+                        </div>
+                    </>
+                )}
             </>
         );
     } else if (page === "Standings") {
