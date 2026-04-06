@@ -89,7 +89,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
         <>
             <Scorecard
                 game={game}
-                sportLeague={sportLeague}
+                isOverview={true}
                 handleClick={() => {}}
             />
             <div className="rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">

@@ -2,11 +2,11 @@ import { type Game } from "../App";
 
 type ScorecardProps = {
     game: Game;
-    sportLeague: string;
+    isOverview: boolean;
     handleClick: () => void;
 };
 
-export default function Scorecard({ game, handleClick }: ScorecardProps) {
+export default function Scorecard({ game, isOverview, handleClick }: ScorecardProps) {
     const competition = game.competitions[0];
     const competitiors = competition.competitors;
 
@@ -16,11 +16,13 @@ export default function Scorecard({ game, handleClick }: ScorecardProps) {
     return (
         <>
             <div
-                className="cursor-pointer rounded-3xl bg-neutral-400/20 p-4 backdrop-blur hover:opacity-70 dark:bg-neutral-800/40"
+                className={`rounded-3xl bg-neutral-400/20 p-4 transition-opacity duration-300 ease-in-out dark:bg-neutral-800/40 ${!isOverview && "hover:cursor-pointer hover:opacity-70"}`}
                 onClick={handleClick}
             >
                 <div className="w-fit">
-                    <h1 className="text-black dark:text-white font-bold">{competition.series?.title}</h1>
+                    <h1 className="font-bold text-black dark:text-white">
+                        {competition.series?.title}
+                    </h1>
                     <h1
                         className={`${
                             competition.status?.type.name ===

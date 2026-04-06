@@ -2,7 +2,7 @@ export default function Header() {
     return (
         <>
             <div
-                className="absolute top-4 left-0 z-10000 flex w-screen flex-col items-center justify-center hover:cursor-pointer hover:opacity-70 md:fixed md:left-4 md:w-fit md:justify-start"
+                className="absolute top-4 left-0 z-10000 flex w-screen flex-col items-center justify-center transition-opacity duration-300 ease-in-out hover:cursor-pointer hover:opacity-70 md:fixed md:left-4 md:w-fit md:justify-start"
                 onClick={() => open("https://github.com/es1228/OpenBoard")}
             >
                 <div className="flex items-center gap-2">
@@ -13,7 +13,7 @@ export default function Header() {
                         OpenBoard
                     </h1>
                 </div>
-                <p className="text-xs text-black dark:text-white text-center">
+                <p className="text-center text-xs text-black dark:text-white">
                     Scoreboards. Stats. Sports.
                 </p>
             </div>

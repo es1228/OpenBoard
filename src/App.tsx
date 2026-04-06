@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
@@ -251,7 +251,7 @@ export default function App() {
         "soccer/uefa.champions",
     ];
 
-    const sportNames = ["NHL", "NFL", "NBA", "MLB", "MLS", "PL", "UCL"];
+    const sportNames = ["NHL", "NFL", "NBA", "MLB", "MLS", "EPL", "UCL"];
 
     useEffect(() => {
         if (page !== "Overview") localStorage.setItem("page", page);
@@ -274,8 +274,8 @@ export default function App() {
         window.scrollTo({ top: 0 });
     };
 
-    const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        setSportLeague(e.target.value);
+    const handleDropdownChange = (e: MouseEvent<HTMLLIElement>) => {
+        setSportLeague(e.currentTarget.dataset.value!);
         setScoreboardDates(
             new Date().toISOString().slice(0, 10).replaceAll("-", ""),
         );
@@ -434,7 +434,7 @@ export default function App() {
             <div key={game.id} ref={isTarget ? scrollRef : null}>
                 <Scorecard
                     game={game}
-                    sportLeague={sportLeague}
+                    isOverview={false}
                     handleClick={() => openGameInfo(game.id)}
                 />
             </div>
@@ -478,7 +478,7 @@ export default function App() {
                 {!teamScores && (
                     <>
                         <div
-                            className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
+                            className="rounded-3xl bg-neutral-400/20 p-4 transition-opacity duration-300 ease-in-out hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
                             onClick={prevDay}
                         >
                             <p className="text-center text-black dark:text-white">
@@ -502,7 +502,7 @@ export default function App() {
                 {!teamScores && (
                     <>
                         <div
-                            className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
+                            className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40 transition-opacity duration-300 ease-in-out"
                             onClick={nextDay}
                         >
                             <p className="text-center text-black dark:text-white">
@@ -535,11 +535,16 @@ export default function App() {
                         <p className="text-black dark:text-white">Sort By:</p>
                         <Dropdown
                             selectedValue={wildCard ? "WC" : level.toString()}
-                            handleChange={(
-                                e: ChangeEvent<HTMLSelectElement>,
-                            ) => {
-                                if (e.target.value !== "WC") {
-                                    setLevel(parseInt(e.target.value));
+                            handleChange={(e: MouseEvent<HTMLLIElement>) => {
+                                if (
+                                    e.currentTarget.dataset.value !==
+                                    "Wild Card"
+                                ) {
+                                    setLevel(
+                                        parseInt(
+                                            e.currentTarget.dataset.value!.toString(),
+                                        ),
+                                    );
                                     setWildCard(false);
                                 } else setWildCard(true);
                             }}
@@ -576,8 +581,8 @@ export default function App() {
                 <div className="flex flex-col gap-4 rounded-3xl bg-neutral-400/20 p-4 dark:bg-neutral-800/40">
                     <h1 className="text-black dark:text-white">Theme</h1>
                     <Dropdown
-                        handleChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                            setTheme(e.target.value)
+                        handleChange={(e: MouseEvent<HTMLLIElement>) =>
+                            setTheme(e.currentTarget.dataset.value!)
                         }
                         selectedValue={theme}
                         values={["light", "dark", "system"]}
@@ -593,7 +598,7 @@ export default function App() {
     if (page === "Overview") {
         controlButton = (
             <p
-                className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
+                className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur  hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
                 onClick={() => setPage("Games")}
             >
                 X
