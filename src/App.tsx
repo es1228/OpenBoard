@@ -101,29 +101,29 @@ export type Summary = {
     plays: Array<{
         text: string;
     }>;
-    rosters: Array<{
-        homeAway: string;
-        roster: Array<{
-            athlete: {
-                shortName: string;
-                headshot: {
-                    href: string;
-                }
-            };
-            position: {
-                    abbreviation: string;
-                };
-            stats: Array<{
-                shortDisplayName: string;
-                displayValue: string;
+    boxscore: {
+        players: Array<{
+            statistics: Array<{
+                athletes: Array<{
+                    athlete: {
+                        shortName: string;
+                        headshot: {
+                            href: string;
+                        };
+                    };
+                    position: {
+                        abbreviation: string;
+                    }
+                    stats: Array<{}>
+                }>;
+                names: Array<{}>
+                type: string;
             }>;
-            jersey: string;
+            team: {
+                displayName: string;
+            }
         }>;
-        team: {
-            displayName: string;
-            logo: string;
-        };
-    }>;
+    };
 };
 
 export const standingsConfig = {
@@ -194,7 +194,7 @@ export default function App() {
     const [boxScoreIndex, setBoxScoreIndex] = useState<number>();
     const [selectedTeamID, setSelectedTeamID] = useState<string>("-1");
     const [scoreboardDates, setScoreboardDates] = useState<string>(
-        new Date().toISOString().slice(0, 10).replaceAll("-", ""),
+        new Date().toLocaleString("sv").slice(0, 10).replaceAll("-", ""),
     );
 
     useEffect(() => {

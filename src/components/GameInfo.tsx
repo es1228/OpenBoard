@@ -204,36 +204,49 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                     </div>
                 </div>
             </div>
-            {gameSummary?.rosters.map((roster) => (
+            {gameSummary?.boxscore.players.map((player) => (
                 <div className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
-                    <h1 className="font-bold">{roster.team.displayName}</h1>
+                    <h1 className="font-bold">{player.team.displayName}</h1>
                     <div className="overflow-x-auto">
                         <table className="w-max min-w-full tabular-nums">
-                        <thead>
-                            <tr>
-                                <th className="text-left min-w-40">Player</th>
-                                {roster.roster[0].stats.map((stat) => (
-                                    <th className="w-10 text-center">
-                                        {stat.shortDisplayName}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {roster.roster.map((player) => (
-                                <tr className="text-nowrap">
-                                    <td className="text-left">
-                                        {`${player.athlete.shortName} - ${player.position.abbreviation} - #${player.jersey}`}
-                                    </td>
-                                    {player.stats.map((stat) => (
-                                        <td className="w-10 text-center">
-                                            {stat.displayValue}
-                                        </td>
-                                    ))}
-                                </tr>
+                            {player.statistics.map((stat) => (
+                                <>
+                                    <thead>
+                                        <tr>
+                                            <th className="min-w-40 text-left capitalize">
+                                                {stat.type}
+                                            </th>
+                                            {stat.names.map(
+                                                (name) => (
+                                                    <th className="w-15 text-center">
+                                                        {name.toString()}
+                                                    </th>
+                                                ),
+                                            )}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {stat.athletes.map(
+                                            (player) => (
+                                                <tr className="text-nowrap">
+                                                    <td className="text-left">
+                                                        {`${player.athlete.shortName} - ${player.position.abbreviation}`}
+                                                    </td>
+                                                    {player.stats.map(
+                                                        (stat) => (
+                                                            <td className="w-15 text-center">
+                                                                {stat.toString()}
+                                                            </td>
+                                                        ),
+                                                    )}
+                                                </tr>
+                                            ),
+                                        )}
+                                    </tbody>
+                                    <p>&nbsp;</p>
+                                </>
                             ))}
-                        </tbody>
-                    </table>
+                        </table>
                     </div>
                 </div>
             ))}
