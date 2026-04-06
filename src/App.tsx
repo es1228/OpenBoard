@@ -20,7 +20,7 @@ export type Game = {
         }>;
         series?: {
             title: string;
-        }
+        };
         competitors: Array<{
             homeAway: string;
             winner: boolean;
@@ -42,9 +42,11 @@ export type Game = {
                 period: number;
             }>;
             statistics?: Array<{
-                name: string;
-                abbreviation: string;
-                displayValue: string;
+                stats?: Array<{
+                    name: string;
+                    abbreviation: string;
+                    displayValue: string;
+                }>;
             }>;
             records: Array<{
                 summary: string;
@@ -158,6 +160,7 @@ export const standingsConfig = {
         "streak",
     ],
     "football/nfl": [
+        "playoffSeed",
         "wins",
         "losses",
         "gamesBehind",
@@ -228,10 +231,14 @@ export default function App() {
         const saved = parseInt(localStorage.getItem("level") ?? "3");
         return saved;
     });
+    const [wildCard, setWildCard] = useState<boolean>(() => {
+        const saved = JSON.parse(localStorage.getItem("wildCard") ?? "false");
+        return saved;
+    });
     const [boxScoreIndex, setBoxScoreIndex] = useState<number>();
     const [selectedTeamID, setSelectedTeamID] = useState<string>("-1");
     const [scoreboardDates, setScoreboardDates] = useState<string>(
-        new Date().toLocaleString("sv").slice(0, 10).replaceAll("-", ""),
+        new Date().toISOString().slice(0, 10).replaceAll("-", ""),
     );
 
     const sportValues = [
@@ -258,6 +265,10 @@ export default function App() {
         localStorage.setItem("level", level.toString());
     }, [level]);
 
+    useEffect(() => {
+        localStorage.setItem("wildCard", wildCard.toString());
+    }, [wildCard]);
+
     const handleNavbarSelect = (value: string) => {
         setPage(value);
         window.scrollTo({ top: 0 });
@@ -265,7 +276,9 @@ export default function App() {
 
     const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setSportLeague(e.target.value);
-        setScoreboardDates(new Date().toLocaleString("sv").slice(0, 10).replaceAll("-", ""))
+        setScoreboardDates(
+            new Date().toISOString().slice(0, 10).replaceAll("-", ""),
+        );
     };
 
     const handleTableClick = async (id: string) => {
@@ -360,10 +373,24 @@ export default function App() {
             try {
                 let fetchLevel;
                 if (sportLeague.split("/")[0] !== "soccer") fetchLevel = level;
-                else fetchLevel = 3;              
-                const response = await fetch(
-                    `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=${fetchLevel}`,
-                );
+                else fetchLevel = 3;
+
+                let type;
+                if (sportLeague === "football/nfl") type = "0";
+                else if (sportLeague === "hockey/nhl") type = "3";
+                else if (sportLeague === "baseball/mlb") type = "1";
+                else type = "-1";
+
+                let response;
+                if (!wildCard || type === "-1") {
+                    response = await fetch(
+                        `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=0&level=${fetchLevel}`,
+                    );
+                } else {
+                    response = await fetch(
+                        `https://site.api.espn.com/apis/v2/sports/${sportLeague}/standings?type=${type}`,
+                    );
+                }
                 const data = await response.json();
                 setStandings(data);
             } catch {
@@ -371,7 +398,7 @@ export default function App() {
             }
         };
         fetchStandings();
-    }, [sportLeague, level]);
+    }, [sportLeague, level, wildCard]);
 
     useEffect(() => {
         if (teamScores && page === "Games" && scoreboards.length > 0) {
@@ -507,12 +534,22 @@ export default function App() {
                     <div className="flex items-center gap-4">
                         <p className="text-black dark:text-white">Sort By:</p>
                         <Dropdown
-                            selectedValue={level.toString()}
-                            handleChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                                setLevel(parseInt(e.target.value))
-                            }
-                            values={["1", "2", "3"]}
-                            names={["League", "Conference", "Division"]}
+                            selectedValue={wildCard ? "WC" : level.toString()}
+                            handleChange={(
+                                e: ChangeEvent<HTMLSelectElement>,
+                            ) => {
+                                if (e.target.value !== "WC") {
+                                    setLevel(parseInt(e.target.value));
+                                    setWildCard(false);
+                                } else setWildCard(true);
+                            }}
+                            values={["1", "2", "3", "WC"]}
+                            names={[
+                                "League",
+                                "Conference",
+                                "Division",
+                                "Wild Card",
+                            ]}
                         />
                     </div>
                 </div>
@@ -521,6 +558,8 @@ export default function App() {
                     cols={currentCols}
                     handleClick={handleTableClick}
                     selectedTeamID={selectedTeamID}
+                    sportLeague={sportLeague}
+                    wildCard={wildCard}
                 />
             </>
         );

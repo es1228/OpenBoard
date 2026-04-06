@@ -5,6 +5,8 @@ type TableProps = {
     cols: string[];
     handleClick: (id: string) => void;
     selectedTeamID: string;
+    sportLeague: string;
+    wildCard: boolean;
 };
 
 export default function Table({
@@ -12,6 +14,8 @@ export default function Table({
     cols,
     handleClick,
     selectedTeamID,
+    sportLeague,
+    wildCard,
 }: TableProps) {
     if (!data) {
         return <p className="text-black dark:text-white">Loading...</p>;
@@ -30,6 +34,8 @@ export default function Table({
                     cols={cols}
                     handleClick={handleClick}
                     selectedTeamID={selectedTeamID}
+                    sportLeague={sportLeague}
+                    wildCard={wildCard}
                 />
             </div>
         ));
@@ -42,6 +48,8 @@ export default function Table({
                 cols={cols}
                 handleClick={handleClick}
                 selectedTeamID={selectedTeamID}
+                sportLeague={sportLeague}
+                wildCard={wildCard}
             />
         );
     }
@@ -52,7 +60,16 @@ const StandingsTable = ({
     cols,
     handleClick,
     selectedTeamID,
+    sportLeague,
+    wildCard,
 }: TableProps) => {
+    let dividerIndex;
+    if (!wildCard) dividerIndex = -1;
+    else if (sportLeague === "hockey/nhl") dividerIndex = 1;
+    else if (sportLeague === "baseball/mlb") dividerIndex = 2;
+    else if (sportLeague === "football/nhl") dividerIndex = 6;
+    else dividerIndex = -1;
+
     return (
         <>
             <div className="overflow-x-auto rounded-3xl bg-neutral-400/20 dark:bg-neutral-800/40">
@@ -81,7 +98,16 @@ const StandingsTable = ({
                     <tbody className="text-center text-black dark:text-white">
                         {data.standings?.entries
                             .toSorted((a: StandingEntry, b: StandingEntry) => {
-                                const sortKey = "gamesBehind";
+                                let sortKey;
+                                if (
+                                    a.stats.find(
+                                        (s) => s.name === "playoffSeed",
+                                    )
+                                ) {
+                                    sortKey = "playoffSeed";
+                                } else {
+                                    sortKey = "gamesBehind";
+                                }
 
                                 const statA =
                                     a.stats?.find((s) => s.name === sortKey)
@@ -92,57 +118,67 @@ const StandingsTable = ({
 
                                 return statA - statB;
                             })
-                            .map((entry) => (
-                                <tr
-                                    key={entry.team.id}
-                                    className="hover:cursor-pointer hover:opacity-70"
-                                    onClick={() =>
-                                        entry.team.id &&
-                                        handleClick(entry.team.id)
-                                    }
-                                >
-                                    <td className="flex items-center gap-4 py-2 pl-4">
-                                        <img
-                                            src={entry.team.logos[0].href}
-                                            alt={`${entry.team.displayName} Logo`}
-                                            className="h-10"
-                                        />
-                                        <div className="flex">
-                                            <p>
-                                                {entry.stats.find(
-                                                    (s) =>
-                                                        s.name === "clincher",
-                                                ) &&
-                                                    entry.stats.find(
+                            .map((entry, index) => (
+                                <>
+                                    <tr
+                                        key={entry.team.id}
+                                        className="hover:cursor-pointer hover:opacity-70"
+                                        onClick={() =>
+                                            entry.team.id &&
+                                            handleClick(entry.team.id)
+                                        }
+                                    >
+                                        <td className="flex items-center gap-4 py-2 pl-4">
+                                            <img
+                                                src={entry.team.logos[0].href}
+                                                alt={`${entry.team.displayName} Logo`}
+                                                className="h-10"
+                                            />
+                                            <div className="flex">
+                                                <p>
+                                                    {entry.stats.find(
                                                         (s) =>
                                                             s.name ===
                                                             "clincher",
-                                                    )?.displayValue +
-                                                        " - \u200b"}
-                                            </p>
-                                            <p
-                                                className={`hidden md:block ${selectedTeamID === entry.team.id && "underline"}`}
-                                            >
-                                                {entry.team.displayName}
-                                            </p>
-                                            <p
-                                                className={`block md:hidden ${selectedTeamID === entry.team.id && "underline"}`}
-                                            >
-                                                {entry.team.abbreviation}
-                                            </p>
-                                        </div>
-                                    </td>
-                                    {cols.map((key) => {
-                                        const statValue = entry.stats.find(
-                                            (s) => s.name === key,
-                                        );
-                                        return (
-                                            <td key={key}>
-                                                {statValue?.displayValue}
+                                                    ) &&
+                                                        entry.stats.find(
+                                                            (s) =>
+                                                                s.name ===
+                                                                "clincher",
+                                                        )?.displayValue +
+                                                            " - \u200b"}
+                                                </p>
+                                                <p
+                                                    className={`hidden md:block ${selectedTeamID === entry.team.id && "underline"}`}
+                                                >
+                                                    {entry.team.displayName}
+                                                </p>
+                                                <p
+                                                    className={`block md:hidden ${selectedTeamID === entry.team.id && "underline"}`}
+                                                >
+                                                    {entry.team.abbreviation}
+                                                </p>
+                                            </div>
+                                        </td>
+                                        {cols.map((key) => {
+                                            const statValue = entry.stats.find(
+                                                (s) => s.name === key,
+                                            );
+                                            return (
+                                                <td key={key}>
+                                                    {statValue?.displayValue}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                    {index === dividerIndex && (
+                                        <tr>
+                                            <td colSpan={cols.length + 1}>
+                                                <hr className="mx-2 rounded-3xl"/>
                                             </td>
-                                        );
-                                    })}
-                                </tr>
+                                        </tr>
+                                    )}
+                                </>
                             ))}
                     </tbody>
                 </table>

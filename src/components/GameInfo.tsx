@@ -108,7 +108,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                 </th>
                             ))}
                             <th className="w-10 text-center">
-                                {homeTeam?.statistics?.find(
+                                {homeTeam?.statistics?.[0]?.stats?.find(
                                     (s) =>
                                         s.name === "runs" ||
                                         s.name === "goals" ||
@@ -128,7 +128,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                 </td>
                             ))}
                             <td className="text-center font-bold">
-                                {(awayTeam?.statistics?.find(
+                                {(awayTeam?.statistics?.[0]?.stats?.find(
                                     (s) =>
                                         s.name === "runs" ||
                                         s.name === "goals" ||
@@ -153,7 +153,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                                 <td className="text-center">-</td>
                             )}
                             <td className="text-center font-bold">
-                                {(homeTeam?.statistics?.find(
+                                {(homeTeam?.statistics?.[0]?.stats?.find(
                                     (s) =>
                                         s.name === "runs" ||
                                         s.name === "goals" ||
