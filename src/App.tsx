@@ -334,6 +334,7 @@ export default function App() {
     const openGameInfo = (id: string) => {
         setPage("Overview");
         setBoxScoreIndex(scoreboards.findIndex((game) => game.id === id));
+        window.scrollTo({top: 0})
     };
 
     useEffect(() => {
@@ -417,7 +418,7 @@ export default function App() {
         const competitiors = competition.competitors;
 
         const targetIndex = scoreboards.findIndex(
-            (e) => e.competitions[0].status?.type.name === "STATUS_SCHEDULED",
+            (e) => e.competitions[0].status?.type.name === "STATUS_IN_PROGRESS" || e.competitions[0].status?.type.name === "STATUS_END_PERIOD" || e.competitions[0].status?.type.name === "STATUS_HALFTIME" || e.competitions[0].status?.type.name === "STATUS_DELAYED" || e.competitions[0].status?.type.name === "STATUS_RAIN_DELAY" || e.competitions[0].status?.type.name === "STATUS_SCHEDULED",
         );
 
         const isTarget =
