@@ -280,7 +280,7 @@ export default function App() {
         );
     };
 
-    const handleTableClick = async (id: string) => {
+    const handleTeamClick = async (id: string) => {
         if (!id) return;
 
         setSelectedTeamID(id);
@@ -436,6 +436,7 @@ export default function App() {
                     game={game}
                     isOverview={false}
                     handleClick={() => openGameInfo(game.id)}
+                    handleTeamClick={() => {}}
                 />
             </div>
         );
@@ -561,7 +562,7 @@ export default function App() {
                 <Table
                     data={standings}
                     cols={currentCols}
-                    handleClick={handleTableClick}
+                    handleClick={handleTeamClick}
                     selectedTeamID={selectedTeamID}
                     sportLeague={sportLeague}
                     wildCard={wildCard}
@@ -573,6 +574,7 @@ export default function App() {
             <GameInfo
                 game={scoreboards[boxScoreIndex!]}
                 sportLeague={sportLeague}
+                handleTeamClick={handleTeamClick}
             />
         );
     } else if (page === "Settings") {

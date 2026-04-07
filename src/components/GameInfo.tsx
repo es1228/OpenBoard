@@ -5,13 +5,14 @@ import { Fragment, useEffect, useState } from "react";
 type GameInfoProps = {
     game: Game;
     sportLeague: string;
+    handleTeamClick: (id: string) => void;
 };
 
 type winprobability = {
     homeWinPercentage: number;
 };
 
-export default function GameInfo({ game, sportLeague }: GameInfoProps) {
+export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInfoProps) {
     const [winProbability, setWinProbability] = useState<winprobability[]>([]);
     const [gameSummary, setGameSummary] = useState<Summary>();
 
@@ -91,6 +92,7 @@ export default function GameInfo({ game, sportLeague }: GameInfoProps) {
                 game={game}
                 isOverview={true}
                 handleClick={() => {}}
+                handleTeamClick={handleTeamClick}
             />
             <div className="rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
                 <h1 className="font-bold">Line Score</h1>

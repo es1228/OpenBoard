@@ -4,9 +4,10 @@ type ScorecardProps = {
     game: Game;
     isOverview: boolean;
     handleClick: () => void;
+    handleTeamClick: (id: string) => void;
 };
 
-export default function Scorecard({ game, isOverview, handleClick }: ScorecardProps) {
+export default function Scorecard({ game, isOverview, handleClick, handleTeamClick }: ScorecardProps) {
     const competition = game.competitions[0];
     const competitiors = competition.competitors;
 
@@ -55,11 +56,11 @@ export default function Scorecard({ game, isOverview, handleClick }: ScorecardPr
                     />
                 </div>
                 <div className="mt-2 flex items-center justify-between">
-                    <div className="flex flex-1 flex-col items-start gap-2">
+                    <div className="flex flex-1 flex-col items-start gap-2 hover:cursor-pointer" onClick={() => handleTeamClick(awayTeam?.team.id!)}>
                         <h1 className="text-lg text-black dark:text-white">
                             Away
                         </h1>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 hover:cursor-pointer">
                             <img
                                 className="w-15 md:w-20"
                                 src={
@@ -95,7 +96,7 @@ export default function Scorecard({ game, isOverview, handleClick }: ScorecardPr
                     <p className="mb-8 text-5xl text-black dark:text-white">
                         -
                     </p>
-                    <div className="flex flex-1 flex-col items-end gap-2">
+                    <div className="flex flex-1 flex-col items-end gap-2 hover:cursor-pointer" onClick={() => handleTeamClick(homeTeam?.team.id!)}>
                         <h1 className="text-lg text-black dark:text-white">
                             Home
                         </h1>
