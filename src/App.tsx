@@ -160,7 +160,6 @@ export const standingsConfig = {
         "streak",
     ],
     "football/nfl": [
-        "playoffSeed",
         "wins",
         "losses",
         "gamesBehind",
@@ -538,7 +537,7 @@ export default function App() {
                             handleChange={(e: MouseEvent<HTMLLIElement>) => {
                                 if (
                                     e.currentTarget.dataset.value !==
-                                    "Wild Card"
+                                    "WC"
                                 ) {
                                     setLevel(
                                         parseInt(
@@ -550,10 +549,10 @@ export default function App() {
                             }}
                             values={["1", "2", "3", "WC"]}
                             names={[
-                                "League",
-                                "Conference",
-                                "Division",
-                                "Wild Card",
+                                "Full",
+                                "Conf.",
+                                "Div.",
+                                "WC",
                             ]}
                         />
                     </div>

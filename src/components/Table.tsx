@@ -1,3 +1,4 @@
+import { Fragment } from "react/jsx-runtime";
 import { type StandingEntry, type Standings } from "../App";
 
 type TableProps = {
@@ -67,7 +68,7 @@ const StandingsTable = ({
     if (!wildCard) dividerIndex = -1;
     else if (sportLeague === "hockey/nhl") dividerIndex = 1;
     else if (sportLeague === "baseball/mlb") dividerIndex = 2;
-    else if (sportLeague === "football/nhl") dividerIndex = 6;
+    else if (sportLeague === "football/nfl") dividerIndex = 6;
     else dividerIndex = -1;
 
     return (
@@ -98,30 +99,25 @@ const StandingsTable = ({
                     <tbody className="text-center text-black dark:text-white">
                         {data.standings?.entries
                             .toSorted((a: StandingEntry, b: StandingEntry) => {
-                                let sortKey;
-                                if (
-                                    a.stats.find(
-                                        (s) => s.name === "playoffSeed",
-                                    )
-                                ) {
-                                    sortKey = "playoffSeed";
-                                } else {
-                                    sortKey = "gamesBehind";
-                                }
-
-                                const statA =
-                                    a.stats?.find((s) => s.name === sortKey)
+                                const statA1 =
+                                    a.stats?.find((s) => s.name === "playoffSeed")
                                         ?.value ?? 0;
-                                const statB =
-                                    b.stats?.find((s) => s.name === sortKey)
+                                const statB1 =
+                                    b.stats?.find((s) => s.name === "playoffSeed")
                                         ?.value ?? 0;
+                                if (statA1 - statB1 !== 0) return statA1 - statB1;
 
-                                return statA - statB;
+                                const statA2 =
+                                    a.stats?.find((s) => s.name === "playoffSeed")
+                                        ?.value ?? 0;
+                                const statB2 =
+                                    b.stats?.find((s) => s.name === "playoffSeed")
+                                        ?.value ?? 0;
+                                return statA2 - statB2;
                             })
                             .map((entry, index) => (
-                                <>
+                                <Fragment key={entry.team.id}>
                                     <tr
-                                        key={entry.team.id}
                                         className="hover:cursor-pointer hover:opacity-70"
                                         onClick={() =>
                                             entry.team.id &&
@@ -174,11 +170,11 @@ const StandingsTable = ({
                                     {index === dividerIndex && (
                                         <tr>
                                             <td colSpan={cols.length + 1}>
-                                                <hr className="mx-2 rounded-3xl"/>
+                                                <hr className="mx-2 rounded-3xl" />
                                             </td>
                                         </tr>
                                     )}
-                                </>
+                                </Fragment>
                             ))}
                     </tbody>
                 </table>
