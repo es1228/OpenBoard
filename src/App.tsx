@@ -237,7 +237,7 @@ export default function App() {
     const [boxScoreIndex, setBoxScoreIndex] = useState<number>();
     const [selectedTeamID, setSelectedTeamID] = useState<string>("-1");
     const [scoreboardDates, setScoreboardDates] = useState<string>(
-        new Date().toISOString().slice(0, 10).replaceAll("-", ""),
+        new Date().toLocaleString("sv").slice(0, 10).replaceAll("-", ""),
     );
 
     const sportValues = [
@@ -276,7 +276,7 @@ export default function App() {
     const handleDropdownChange = (e: MouseEvent<HTMLLIElement>) => {
         setSportLeague(e.currentTarget.dataset.value!);
         setScoreboardDates(
-            new Date().toISOString().slice(0, 10).replaceAll("-", ""),
+            new Date().toLocaleString("sv").slice(0, 10).replaceAll("-", ""),
         );
     };
 
@@ -464,7 +464,7 @@ export default function App() {
         const newDate = MMDDYYtoDate(scoreboardDates);
         newDate.setDate(newDate.getDate() + 1);
         setScoreboardDates(
-            newDate.toISOString().slice(0, 10).replaceAll("-", ""),
+            newDate.toLocaleString("sv").slice(0, 10).replaceAll("-", ""),
         );
         window.scrollTo({ top: 0 });
     };
