@@ -36,11 +36,11 @@ export default function Dropdown({
                 onClick={() => setMenuOpen(!menuOpen)}
             >
                 {names[values.indexOf(selectedValue)]}
-                <p
-                    className={`inline-block transition-transform duration-300 ${menuOpen ? "rotate-180" : "rotate-0"}`}
+                <div
+                    className={`block max-h-6 transition-transform origin-center duration-300 ${menuOpen ? "rotate-180" : "rotate-0"}`}
                 >
-                    ▾
-                </p>
+                        <span className="material-symbols-rounded">arrow_drop_down</span>
+                </div>
             </button>
             {menuOpen && (
                 <ul
@@ -50,13 +50,15 @@ export default function Dropdown({
                     {values.map((val, index) => (
                         <li
                             key={val}
-                            className="flex gap-2 p-2 transition-opacity duration-300 ease-in-out hover:cursor-pointer hover:opacity-70"
+                            className="flex gap-3 p-2 transition-opacity duration-300 ease-in-out hover:cursor-pointer hover:opacity-70"
                             data-value={val}
                             onClick={handleChange}
                         >
-                            <p className="w-4">
-                                {val === selectedValue ? "✓" : ""}
-                            </p>
+                            <div className="w-4">
+                                {val === selectedValue && (
+                                    <span className="material-symbols-rounded">check</span>
+                                )}
+                            </div>
                             {names[index]}
                         </li>
                     ))}

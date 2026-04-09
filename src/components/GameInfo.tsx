@@ -40,6 +40,7 @@ export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInf
                     `https://site.api.espn.com/apis/site/v2/sports/${sportLeague}/summary?event=${game.id}`,
                 );
                 const data = await response.json();
+                console.log(data);
                 setGameSummary(data);
             } catch {
                 console.error("Could not fetch game summary");

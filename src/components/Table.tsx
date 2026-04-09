@@ -8,6 +8,7 @@ type TableProps = {
     selectedTeamID: string;
     sportLeague: string;
     wildCard: boolean;
+    level: number;
 };
 
 export default function Table({
@@ -17,6 +18,7 @@ export default function Table({
     selectedTeamID,
     sportLeague,
     wildCard,
+    level,
 }: TableProps) {
     if (!data) {
         return <p className="text-black dark:text-white">Loading...</p>;
@@ -37,6 +39,7 @@ export default function Table({
                     selectedTeamID={selectedTeamID}
                     sportLeague={sportLeague}
                     wildCard={wildCard}
+                    level={level}
                 />
             </div>
         ));
@@ -51,6 +54,7 @@ export default function Table({
                 selectedTeamID={selectedTeamID}
                 sportLeague={sportLeague}
                 wildCard={wildCard}
+                level={level}
             />
         );
     }
@@ -63,6 +67,7 @@ const StandingsTable = ({
     selectedTeamID,
     sportLeague,
     wildCard,
+    level,
 }: TableProps) => {
     let dividerIndex;
     if (!wildCard) dividerIndex = -1;
@@ -99,21 +104,44 @@ const StandingsTable = ({
                     <tbody className="text-center text-black dark:text-white">
                         {data.standings?.entries
                             .toSorted((a: StandingEntry, b: StandingEntry) => {
-                                const statA1 =
-                                    a.stats?.find((s) => s.name === "playoffSeed")
-                                        ?.value ?? 0;
-                                const statB1 =
-                                    b.stats?.find((s) => s.name === "playoffSeed")
-                                        ?.value ?? 0;
-                                if (statA1 - statB1 !== 0) return statA1 - statB1;
+                                if (level !== 1) {
+                                    const statA1 =
+                                        a.stats?.find(
+                                            (s) => s.name === "playoffSeed",
+                                        )?.value ?? 0;
+                                    const statB1 =
+                                        b.stats?.find(
+                                            (s) => s.name === "playoffSeed",
+                                        )?.value ?? 0;
+                                    if (statA1 - statB1 !== 0)
+                                        return statA1 - statB1;
+                                }
 
                                 const statA2 =
-                                    a.stats?.find((s) => s.name === "playoffSeed")
+                                    a.stats?.find((s) => s.name === "points")
                                         ?.value ?? 0;
                                 const statB2 =
-                                    b.stats?.find((s) => s.name === "playoffSeed")
+                                    b.stats?.find((s) => s.name === "points")
                                         ?.value ?? 0;
-                                return statA2 - statB2;
+                                if (statB2 - statA2 !== 0)
+                                    return statB2 - statA2;
+
+                                const statA3 =
+                                    a.stats?.find((s) => s.name === "gamesPlayed")
+                                        ?.value ?? 0;
+                                const statB3 =
+                                    b.stats?.find((s) => s.name === "gamesPlayed")
+                                        ?.value ?? 0;
+                                if (statB3 - statA3 !== 0)
+                                    return statA3 - statB3;
+
+                                const statA4 =
+                                    a.stats?.find((s) => s.name === "wins")
+                                        ?.value ?? 0;
+                                const statB4 =
+                                    b.stats?.find((s) => s.name === "wins")
+                                        ?.value ?? 0;
+                                return statB4 - statA4;
                             })
                             .map((entry, index) => (
                                 <Fragment key={entry.team.id}>
@@ -170,7 +198,7 @@ const StandingsTable = ({
                                     {index === dividerIndex && (
                                         <tr>
                                             <td colSpan={cols.length + 1}>
-                                                <hr className="mx-2 rounded-3xl" />
+                                                <hr className="bg-black: mx-2 h-px rounded-3xl border-0 dark:bg-white" />
                                             </td>
                                         </tr>
                                     )}

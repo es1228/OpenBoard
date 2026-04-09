@@ -107,7 +107,33 @@ export type StandingEntry = {
 
 export type Summary = {
     plays: Array<{
+        awayScore: number;
+        clock: {
+            displayValue: string;
+        }
+        homeScore: number;
+        id: string;
+        modified: string;
+        period: {
+            number: number;
+            displayValue: string;
+        }
+        scoreValue: number;
+        scoringPlay: boolean;
+        sequenceNumber: string;
+        shootingPlay: boolean;
+        strength: {
+            id: string;
+            text: string;
+            abbreviation: string;
+        }
         text: string;
+        type: {
+            id: string;
+            text: string;
+            abbreviation: string;
+        }
+        wallclock: string;
     }>;
     boxscore: {
         players: Array<{
@@ -566,6 +592,7 @@ export default function App() {
                     selectedTeamID={selectedTeamID}
                     sportLeague={sportLeague}
                     wildCard={wildCard}
+                    level={level}
                 />
             </>
         );
