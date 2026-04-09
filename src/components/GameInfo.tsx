@@ -12,7 +12,11 @@ type winprobability = {
     homeWinPercentage: number;
 };
 
-export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInfoProps) {
+export default function GameInfo({
+    game,
+    sportLeague,
+    handleTeamClick,
+}: GameInfoProps) {
     const [winProbability, setWinProbability] = useState<winprobability[]>([]);
     const [gameSummary, setGameSummary] = useState<Summary>();
 
@@ -102,7 +106,10 @@ export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInf
                         <tr>
                             <th className="text-left">Team</th>
                             {awayTeam?.linescores?.map((linescore) => (
-                                <th key={linescore.period} className="w-10 text-center">
+                                <th
+                                    key={linescore.period}
+                                    className="w-10 text-center"
+                                >
                                     {periodFormatter(
                                         sportLeague,
                                         linescore.period,
@@ -126,7 +133,10 @@ export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInf
                                 {awayTeam?.team.abbreviation}
                             </td>
                             {awayTeam?.linescores?.map((linescore) => (
-                                <td key={linescore.period} className="text-center">
+                                <td
+                                    key={linescore.period}
+                                    className="text-center"
+                                >
                                     {linescore.displayValue}
                                 </td>
                             ))}
@@ -147,7 +157,10 @@ export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInf
                                 {homeTeam?.team.abbreviation}
                             </td>
                             {homeTeam?.linescores?.map((linescore) => (
-                                <td key={linescore.period} className="text-center">
+                                <td
+                                    key={linescore.period}
+                                    className="text-center"
+                                >
                                     {linescore.displayValue}
                                 </td>
                             ))}
@@ -209,9 +222,12 @@ export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInf
                     </div>
                 </div>
             </div>
-            {gameSummary?.boxscore.players &&
-                gameSummary?.boxscore.players.map((player) => (
-                    <div key={player.team.displayName} className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
+            {gameSummary?.boxscore?.players &&
+                gameSummary.boxscore.players.map((player) => (
+                    <div
+                        key={player.team.displayName}
+                        className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white"
+                    >
                         <h1 className="font-bold">{player.team.displayName}</h1>
                         <div className="overflow-x-auto">
                             <table className="w-max min-w-full tabular-nums">
@@ -225,7 +241,10 @@ export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInf
                                                         "Players"}
                                                 </th>
                                                 {stat.labels.map((label) => (
-                                                    <th key={label.toString()} className="w-15 text-center">
+                                                    <th
+                                                        key={label.toString()}
+                                                        className="w-15 text-center"
+                                                    >
                                                         {label.toString()}
                                                     </th>
                                                 ))}
@@ -233,13 +252,21 @@ export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInf
                                         </thead>
                                         <tbody>
                                             {stat.athletes.map((player) => (
-                                                <tr key={player.athlete.shortName} className="text-nowrap">
+                                                <tr
+                                                    key={
+                                                        player.athlete.shortName
+                                                    }
+                                                    className="text-nowrap"
+                                                >
                                                     <td className="text-left">
                                                         {`${player.athlete.shortName} - ${player.athlete.position.abbreviation}`}
                                                     </td>
                                                     {player.stats.map(
                                                         (stat, index) => (
-                                                            <td key={index} className="w-15 text-center">
+                                                            <td
+                                                                key={index}
+                                                                className="w-15 text-center"
+                                                            >
                                                                 {stat.toString()}
                                                             </td>
                                                         ),
@@ -258,6 +285,28 @@ export default function GameInfo({ game, sportLeague, handleTeamClick }: GameInf
                         </div>
                     </div>
                 ))}
+            {gameSummary?.plays && (
+                <div className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
+                    <h1 className="font-bold">Scoring Plays</h1>
+                    {gameSummary.plays?.map((play) => (
+                        <>
+                            {play.scoringPlay && (
+                                <div className="flex gap-4 items-center">
+                                    <img
+                                        src={`${play.team?.id === homeTeam?.team.id ? homeTeam?.team.logo : awayTeam?.team.logo}`} className="h-10"
+                                    />
+                                    <div>
+                                        <p className="font-bold">{play.period.displayValue}, {awayTeam?.team.abbreviation}{" "}
+                                            {play.awayScore} - {play.homeScore}{" "}
+                                            {homeTeam?.team.abbreviation}</p>
+                                        <p>{play.text}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ))}
+                </div>
+            )}
             <p className="text-black dark:text-white">
                 Venue:{" "}
                 {`${game?.competitions[0].venue.fullName}, ${game?.competitions[0].venue.address.city}`}

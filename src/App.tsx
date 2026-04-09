@@ -106,7 +106,7 @@ export type StandingEntry = {
 };
 
 export type Summary = {
-    plays: Array<{
+    plays?: Array<{
         awayScore: number;
         clock: {
             displayValue: string;
@@ -127,6 +127,9 @@ export type Summary = {
             text: string;
             abbreviation: string;
         }
+        team?: {
+            id: string;
+        }
         text: string;
         type: {
             id: string;
@@ -135,7 +138,7 @@ export type Summary = {
         }
         wallclock: string;
     }>;
-    boxscore: {
+    boxscore?: {
         players: Array<{
             statistics: Array<{
                 athletes: Array<{
