@@ -1,13 +1,32 @@
-import { type Game } from "../App";
+import { type Game, type Team } from "../App";
+import type { MouseEvent } from "react";
 
 type ScorecardProps = {
     game: Game;
     isOverview: boolean;
     handleClick: () => void;
     handleTeamClick: (id: string) => void;
+    sportLeague: string;
+    handleSave: (
+        id: string,
+        name: string,
+        logo: string,
+        sportLeague: string,
+    ) => void;
+    handleDelete: (id: string) => void;
+    savedTeams: Team[];
 };
 
-export default function Scorecard({ game, isOverview, handleClick, handleTeamClick }: ScorecardProps) {
+export default function Scorecard({
+    game,
+    isOverview,
+    handleClick,
+    handleTeamClick,
+    sportLeague,
+    handleSave,
+    handleDelete,
+    savedTeams,
+}: ScorecardProps) {
     const competition = game.competitions[0];
     const competitiors = competition.competitors;
 
@@ -56,82 +75,168 @@ export default function Scorecard({ game, isOverview, handleClick, handleTeamCli
                     />
                 </div>
                 <div className="mt-2 flex items-center justify-between">
-                    <div className="flex flex-1 flex-col items-start gap-2 hover:cursor-pointer" onClick={() => handleTeamClick(awayTeam?.team.id!)}>
-                        <h1 className="text-lg text-black dark:text-white">
-                            Away
-                        </h1>
-                        <div className="flex items-center gap-4 hover:cursor-pointer">
-                            <img
-                                className="w-15 md:w-20"
-                                src={
-                                    awayTeam?.team.logo ??
-                                    awayTeam?.team.logos[0].href
-                                }
-                                alt={`${awayTeam?.team.name} Logo`}
-                            />
-                            <h1
-                                className={`text-4xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}
-                            >
-                                {competition.status?.type.name !==
-                                    "STATUS_SCHEDULED" &&
-                                competition.status?.type.name !==
-                                    "STATUS_POSTPONED"
-                                    ? typeof awayTeam?.score === "object"
-                                        ? awayTeam?.score?.displayValue
-                                        : awayTeam?.score
-                                    : ""}
+                    <div className="flex flex-1 flex-col items-start gap-2">
+                        <div
+                            className="flex flex-col items-start gap-2 hover:cursor-pointer"
+                            onClick={() => handleTeamClick(awayTeam?.team.id!)}
+                        >
+                            <h1 className="text-lg text-black dark:text-white">
+                                Away
                             </h1>
+                            <div className="flex items-center gap-4 hover:cursor-pointer">
+                                <img
+                                    className="w-15 md:w-20"
+                                    src={
+                                        awayTeam?.team.logo ??
+                                        awayTeam?.team.logos[0].href
+                                    }
+                                    alt={`${awayTeam?.team.displayName} Logo`}
+                                />
+                                <h1
+                                    className={`text-4xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}
+                                >
+                                    {competition.status?.type.name !==
+                                        "STATUS_SCHEDULED" &&
+                                    competition.status?.type.name !==
+                                        "STATUS_POSTPONED"
+                                        ? typeof awayTeam?.score === "object"
+                                            ? awayTeam?.score?.displayValue
+                                            : awayTeam?.score
+                                        : ""}
+                                </h1>
+                            </div>
+                            <div className="flex gap-1">
+                                <p className="hidden text-black md:block dark:text-white">
+                                    {awayTeam?.team.displayName}
+                                </p>
+                                <p className="block text-black md:hidden dark:text-white">
+                                    {awayTeam?.team.abbreviation}
+                                </p>
+                                {savedTeams.some(
+                                    (team) => team.id === awayTeam?.team.id,
+                                ) ? (
+                                    <span
+                                        className="material-symbols-rounded"
+                                        onClick={(
+                                            e: MouseEvent<HTMLSpanElement>,
+                                        ) => {
+                                            if (!awayTeam?.team.id) return;
+                                            e.stopPropagation();
+                                            handleDelete(
+                                                awayTeam?.team.displayName!,
+                                            );
+                                        }}
+                                    >
+                                        stars
+                                    </span>
+                                ) : (
+                                    <span
+                                        className="material-symbols-rounded"
+                                        onClick={(
+                                            e: MouseEvent<HTMLSpanElement>,
+                                        ) => {
+                                            if (!awayTeam?.team.id) return;
+                                            e.stopPropagation();
+                                            handleSave(                                               
+                                                awayTeam?.team.id!,
+                                                awayTeam?.team.displayName!,
+                                                awayTeam?.team.logo!,
+                                                sportLeague,
+                                            );
+                                        }}
+                                    >
+                                        star
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-black dark:text-white">
+                                {awayTeam?.records?.[0]?.summary ??
+                                    awayTeam?.record?.[0]?.displayValue}
+                            </p>
                         </div>
-                        <p className="hidden text-black md:block dark:text-white">
-                            {awayTeam?.team.displayName}
-                        </p>
-                        <p className="block text-black md:hidden dark:text-white">
-                            {awayTeam?.team.abbreviation}
-                        </p>
-                        <p className="text-black dark:text-white">
-                            {awayTeam?.records?.[0]?.summary ??
-                                awayTeam?.record?.[0]?.displayValue}
-                        </p>
                     </div>
                     <p className="mb-8 text-5xl text-black dark:text-white">
                         -
                     </p>
-                    <div className="flex flex-1 flex-col items-end gap-2 hover:cursor-pointer" onClick={() => handleTeamClick(homeTeam?.team.id!)}>
-                        <h1 className="text-lg text-black dark:text-white">
-                            Home
-                        </h1>
-                        <div className="flex items-center gap-4">
-                            <h1
-                                className={`text-4xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}
-                            >
-                                {competition.status?.type.name !==
-                                    "STATUS_SCHEDULED" &&
-                                competition.status?.type.name !==
-                                    "STATUS_POSTPONED"
-                                    ? typeof homeTeam?.score === "object"
-                                        ? homeTeam?.score?.displayValue
-                                        : homeTeam?.score
-                                    : ""}
+                    <div className="flex flex-1 flex-col items-end gap-2">
+                        <div
+                            className="flex flex-col items-end gap-2 hover:cursor-pointer"
+                            onClick={() => handleTeamClick(homeTeam?.team.id!)}
+                        >
+                            <h1 className="text-right text-lg text-black dark:text-white">
+                                Home
                             </h1>
-                            <img
-                                className="w-15 md:w-20"
-                                src={
-                                    homeTeam?.team.logo ??
-                                    homeTeam?.team.logos[0].href
-                                }
-                                alt={`${homeTeam?.team.name} Logo`}
-                            />
+                            <div className="flex items-center gap-4">
+                                <h1
+                                    className={`text-4xl ${homeTeam?.winner ? "text-amber-400" : "text-black dark:text-white"}`}
+                                >
+                                    {competition.status?.type.name !==
+                                        "STATUS_SCHEDULED" &&
+                                    competition.status?.type.name !==
+                                        "STATUS_POSTPONED"
+                                        ? typeof homeTeam?.score === "object"
+                                            ? homeTeam?.score?.displayValue
+                                            : homeTeam?.score
+                                        : ""}
+                                </h1>
+                                <img
+                                    className="w-15 md:w-20"
+                                    src={
+                                        homeTeam?.team.logo ??
+                                        homeTeam?.team.logos[0].href
+                                    }
+                                    alt={`${homeTeam?.team.displayName} Logo`}
+                                />
+                            </div>
+                            <div className="flex gap-1">
+                                <p className="hidden text-black md:block dark:text-white">
+                                    {homeTeam?.team.displayName}
+                                </p>
+                                <p className="block text-black md:hidden dark:text-white">
+                                    {homeTeam?.team.abbreviation}
+                                </p>
+                                {savedTeams.some(
+                                    (team) => team.id === homeTeam?.team.id,
+                                ) ? (
+                                    <span
+                                        className="material-symbols-rounded"
+                                        onClick={(
+                                            e: MouseEvent<HTMLSpanElement>,
+                                        ) => {
+                                            if (!homeTeam?.team.id) return;
+                                            e.stopPropagation();
+                                            handleDelete(
+                                                homeTeam?.team.displayName!,
+                                            );
+                                        }}
+                                    >
+                                        stars
+                                    </span>
+                                ) : (
+                                    <span
+                                        className="material-symbols-rounded"
+                                        onClick={(
+                                            e: MouseEvent<HTMLSpanElement>,
+                                        ) => {
+                                            if (!homeTeam?.team.id) return;
+                                            e.stopPropagation();
+                                            handleSave(
+                                                homeTeam?.team.id!,
+                                                homeTeam?.team.displayName!,
+                                                homeTeam?.team.logo!,
+                                                sportLeague,
+                                            );
+                                        }}
+                                    >
+                                        star
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-black dark:text-white">
+                                {homeTeam?.records?.[0]?.summary ??
+                                    homeTeam?.record?.[0]?.displayValue}
+                            </p>
                         </div>
-                        <p className="hidden text-black md:block dark:text-white">
-                            {homeTeam?.team.displayName}
-                        </p>
-                        <p className="block text-black md:hidden dark:text-white">
-                            {homeTeam?.team.abbreviation}
-                        </p>
-                        <p className="text-black dark:text-white">
-                            {homeTeam?.records?.[0]?.summary ??
-                                homeTeam?.record?.[0]?.displayValue}
-                        </p>
                     </div>
                 </div>
                 <p className="text-center text-black dark:text-white">

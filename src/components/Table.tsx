@@ -1,5 +1,6 @@
+import { type MouseEvent } from "react";
 import { Fragment } from "react/jsx-runtime";
-import { type StandingEntry, type Standings } from "../App";
+import { type StandingEntry, type Standings, type Team } from "../App";
 
 type TableProps = {
     data: Standings;
@@ -9,6 +10,14 @@ type TableProps = {
     sportLeague: string;
     wildCard: boolean;
     level: number;
+    handleSave: (
+        id: string,
+        name: string,
+        logo: string,
+        sportLeague: string,
+    ) => void;
+    handleDelete: (id: string) => void;
+    savedTeams: Team[];
 };
 
 export default function Table({
@@ -19,6 +28,9 @@ export default function Table({
     sportLeague,
     wildCard,
     level,
+    handleSave,
+    handleDelete,
+    savedTeams,
 }: TableProps) {
     if (!data) {
         return <p className="text-black dark:text-white">Loading...</p>;
@@ -40,6 +52,9 @@ export default function Table({
                     sportLeague={sportLeague}
                     wildCard={wildCard}
                     level={level}
+                    handleSave={handleSave}
+                    handleDelete={handleDelete}
+                    savedTeams={savedTeams}
                 />
             </div>
         ));
@@ -55,6 +70,9 @@ export default function Table({
                 sportLeague={sportLeague}
                 wildCard={wildCard}
                 level={level}
+                handleSave={handleSave}
+                handleDelete={handleDelete}
+                savedTeams={savedTeams}
             />
         );
     }
@@ -68,6 +86,9 @@ const StandingsTable = ({
     sportLeague,
     wildCard,
     level,
+    handleSave,
+    handleDelete,
+    savedTeams,
 }: TableProps) => {
     let dividerIndex;
     if (!wildCard) dividerIndex = -1;
@@ -127,11 +148,13 @@ const StandingsTable = ({
                                     return statB2 - statA2;
 
                                 const statA3 =
-                                    a.stats?.find((s) => s.name === "gamesPlayed")
-                                        ?.value ?? 0;
+                                    a.stats?.find(
+                                        (s) => s.name === "gamesPlayed",
+                                    )?.value ?? 0;
                                 const statB3 =
-                                    b.stats?.find((s) => s.name === "gamesPlayed")
-                                        ?.value ?? 0;
+                                    b.stats?.find(
+                                        (s) => s.name === "gamesPlayed",
+                                    )?.value ?? 0;
                                 if (statB3 - statA3 !== 0)
                                     return statA3 - statB3;
 
@@ -158,7 +181,7 @@ const StandingsTable = ({
                                                 alt={`${entry.team.displayName} Logo`}
                                                 className="h-10"
                                             />
-                                            <div className="flex">
+                                            <div className="flex gap-1">
                                                 <p>
                                                     {entry.stats.find(
                                                         (s) =>
@@ -182,6 +205,44 @@ const StandingsTable = ({
                                                 >
                                                     {entry.team.abbreviation}
                                                 </p>
+                                                {savedTeams.some(
+                                                    (team) =>
+                                                        team.id ===
+                                                        entry.team.id,
+                                                ) ? (
+                                                    <span
+                                                        className="material-symbols-rounded"
+                                                        onClick={(
+                                                            e: MouseEvent<HTMLSpanElement>,
+                                                        ) => {
+                                                            handleDelete(
+                                                                entry.team.displayName,
+                                                            );
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
+                                                        stars
+                                                    </span>
+                                                ) : (
+                                                    <span
+                                                        className="material-symbols-rounded"
+                                                        onClick={(
+                                                            e: MouseEvent<HTMLSpanElement>,
+                                                        ) => {
+                                                            handleSave(
+                                                                entry.team.id,
+                                                                entry.team.displayName,
+                                                                entry.team
+                                                                    .logos[0]
+                                                                    .href,
+                                                                sportLeague,
+                                                            );
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
+                                                        star
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
                                         {cols.map((key) => {

@@ -1,4 +1,4 @@
-import { type Summary, type Game } from "../App";
+import { type Summary, type Game, type Team } from "../App";
 import Scorecard from "./Scorecard";
 import { Fragment, useEffect, useState } from "react";
 
@@ -6,6 +6,14 @@ type GameInfoProps = {
     game: Game;
     sportLeague: string;
     handleTeamClick: (id: string) => void;
+    handleSave: (
+        id: string,
+        name: string,
+        logo: string,
+        sportLeague: string,
+    ) => void;
+    handleDelete: (id: string) => void;
+    savedTeams: Team[];
 };
 
 type winprobability = {
@@ -16,6 +24,9 @@ export default function GameInfo({
     game,
     sportLeague,
     handleTeamClick,
+    handleSave,
+    handleDelete,
+    savedTeams
 }: GameInfoProps) {
     const [winProbability, setWinProbability] = useState<winprobability[]>([]);
     const [gameSummary, setGameSummary] = useState<Summary>();
@@ -98,6 +109,10 @@ export default function GameInfo({
                 isOverview={true}
                 handleClick={() => {}}
                 handleTeamClick={handleTeamClick}
+                sportLeague={sportLeague}
+                handleSave={handleSave}
+                handleDelete={handleDelete}
+                savedTeams={savedTeams}
             />
             <div className="rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
                 <h1 className="font-bold">Line Score</h1>
@@ -232,6 +247,7 @@ export default function GameInfo({
                                     <img
                                         src={`${play.team?.id === homeTeam?.team.id ? homeTeam?.team.logo : awayTeam?.team.logo}`}
                                         className="h-10"
+                                        alt={`${play.team?.id === homeTeam?.team.id ? `${homeTeam} logo` : `${awayTeam} logo`}`}
                                     />
                                     <div>
                                         <p className="font-bold">
@@ -314,11 +330,15 @@ export default function GameInfo({
             {gameSummary?.plays && (
                 <div className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
                     <h1 className="font-bold">Play By Play</h1>
-                    {gameSummary.plays?.map((play) => (
-                        <>
-                            <div className="flex items-center gap-4">
+                    {gameSummary.plays
+                        ?.map((play) => (
+                            <div
+                                key={play.id}
+                                className="flex items-center gap-4"
+                            >
                                 <img
                                     src={`${play.team?.id === homeTeam?.team.id ? homeTeam?.team.logo : awayTeam?.team.logo}`}
+                                    alt={`${play.team?.id === homeTeam?.team.id ? `${homeTeam} logo` : `${awayTeam} logo`}`}
                                     className="h-10"
                                 />
                                 <div>
@@ -331,8 +351,8 @@ export default function GameInfo({
                                     <p>{play.text}</p>
                                 </div>
                             </div>
-                        </>
-                    )).toReversed()}
+                        ))
+                        .toReversed()}
                 </div>
             )}
             <p className="text-black dark:text-white">

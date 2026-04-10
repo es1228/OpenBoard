@@ -28,4 +28,13 @@
         }
     }
     --animate-dropdown-in: dropdown-enter 0.2s ease-out forwards;
+    @keyframes expand {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+    --animate-in: expand 0.2s ease-out forwards;
 }

@@ -6,6 +6,7 @@ import Scorecard from "./components/Scorecard";
 import Dropdown from "./components/Dropdown";
 import Table from "./components/Table";
 import GameInfo from "./components/GameInfo";
+import SavedTeam from "./components/SavedTeam";
 
 export type Game = {
     id: string;
@@ -26,7 +27,6 @@ export type Game = {
             winner: boolean;
             team: {
                 location: string;
-                name: string;
                 abbreviation: string;
                 displayName: string;
                 shortDisplayName: string;
@@ -92,6 +92,7 @@ export type StandingEntry = {
         logos: Array<{
             href: string;
         }>;
+        name: string;
         id: string;
     };
     stats: Array<{
@@ -110,14 +111,14 @@ export type Summary = {
         awayScore: number;
         clock: {
             displayValue: string;
-        }
+        };
         homeScore: number;
         id: string;
         modified: string;
         period: {
             number: number;
             displayValue: string;
-        }
+        };
         scoreValue: number;
         scoringPlay: boolean;
         sequenceNumber: string;
@@ -126,16 +127,16 @@ export type Summary = {
             id: string;
             text: string;
             abbreviation: string;
-        }
+        };
         team?: {
             id: string;
-        }
+        };
         text: string;
         type: {
             id: string;
             text: string;
             abbreviation: string;
-        }
+        };
         wallclock: string;
     }>;
     boxscore?: {
@@ -162,6 +163,13 @@ export type Summary = {
             };
         }>;
     };
+};
+
+export type Team = {
+    id: string;
+    name: string;
+    logo: string;
+    sportLeague: string;
 };
 
 export const standingsConfig = {
@@ -246,11 +254,11 @@ export default function App() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [page, setPage] = useState<string>(() => {
         const saved = localStorage.getItem("page");
-        return saved ? saved : "Home";
+        return saved ? saved : "Games";
     });
     const [sportLeague, setSportLeague] = useState<string>(() => {
         const saved = localStorage.getItem("sportLeague");
-        return saved ? saved : "hockey/nhl";
+        return saved ? saved : "basketball/nba";
     });
     const [scoreboards, setScoreboards] = useState<Game[]>([]);
     const [teamScores, setTeamScores] = useState<boolean>(false);
@@ -280,6 +288,26 @@ export default function App() {
     ];
 
     const sportNames = ["NHL", "NFL", "NBA", "MLB", "MLS", "EPL", "UCL"];
+    const [savedTeams, setSavedTeams] = useState<Team[]>(() => {
+        const saved = localStorage.getItem("savedTeams");
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    const saveTeam = (
+        id: string,
+        name: string,
+        logo: string,
+        sportLeague: string,
+    ) => {
+        setSavedTeams([
+            ...savedTeams,
+            { id: id, name: name, logo: logo, sportLeague: sportLeague },
+        ]);
+    };
+
+    const deleteTeam = (name: string) => {
+        setSavedTeams(savedTeams.filter((team) => name !== team.name));
+    };
 
     useEffect(() => {
         if (page !== "Overview") localStorage.setItem("page", page);
@@ -296,6 +324,10 @@ export default function App() {
     useEffect(() => {
         localStorage.setItem("wildCard", wildCard.toString());
     }, [wildCard]);
+
+    useEffect(() => {
+        localStorage.setItem("savedTeams", JSON.stringify(savedTeams));
+    }, [savedTeams]);
 
     const handleNavbarSelect = (value: string) => {
         setPage(value);
@@ -363,7 +395,7 @@ export default function App() {
     const openGameInfo = (id: string) => {
         setPage("Overview");
         setBoxScoreIndex(scoreboards.findIndex((game) => game.id === id));
-        window.scrollTo({top: 0})
+        window.scrollTo({ top: 0 });
     };
 
     useEffect(() => {
@@ -447,7 +479,13 @@ export default function App() {
         const competitiors = competition.competitors;
 
         const targetIndex = scoreboards.findIndex(
-            (e) => e.competitions[0].status?.type.name === "STATUS_IN_PROGRESS" || e.competitions[0].status?.type.name === "STATUS_END_PERIOD" || e.competitions[0].status?.type.name === "STATUS_HALFTIME" || e.competitions[0].status?.type.name === "STATUS_DELAYED" || e.competitions[0].status?.type.name === "STATUS_RAIN_DELAY" || e.competitions[0].status?.type.name === "STATUS_SCHEDULED",
+            (e) =>
+                e.competitions[0].status?.type.name === "STATUS_IN_PROGRESS" ||
+                e.competitions[0].status?.type.name === "STATUS_END_PERIOD" ||
+                e.competitions[0].status?.type.name === "STATUS_HALFTIME" ||
+                e.competitions[0].status?.type.name === "STATUS_DELAYED" ||
+                e.competitions[0].status?.type.name === "STATUS_RAIN_DELAY" ||
+                e.competitions[0].status?.type.name === "STATUS_SCHEDULED",
         );
 
         const isTarget =
@@ -466,6 +504,10 @@ export default function App() {
                     isOverview={false}
                     handleClick={() => openGameInfo(game.id)}
                     handleTeamClick={() => {}}
+                    sportLeague={sportLeague}
+                    handleSave={saveTeam}
+                    handleDelete={deleteTeam}
+                    savedTeams={savedTeams}
                 />
             </div>
         );
@@ -486,7 +528,7 @@ export default function App() {
         const newDate = MMDDYYtoDate(scoreboardDates);
         newDate.setDate(newDate.getDate() - 1);
         setScoreboardDates(
-            newDate.toISOString().slice(0, 10).replaceAll("-", ""),
+            newDate.toLocaleString("sv").slice(0, 10).replaceAll("-", ""),
         );
         window.scrollTo({ top: 0 });
     };
@@ -498,6 +540,23 @@ export default function App() {
             newDate.toLocaleString("sv").slice(0, 10).replaceAll("-", ""),
         );
         window.scrollTo({ top: 0 });
+    };
+
+    const handleSavedTeamClick = async (team: Team) => {
+        setSelectedTeamID(team.id);
+        setSportLeague(team.sportLeague);
+        setTeamScores(true);
+        setPage("Games");
+
+        try {
+            const response = await fetch(
+                `https://site.api.espn.com/apis/site/v2/sports/${team.sportLeague}/teams/${team.id}/schedule`,
+            );
+            const data = await response.json();
+            setScoreboards(data.events);
+        } catch {
+            console.log("Could not fetch team schedule");
+        }
     };
 
     let content;
@@ -532,7 +591,7 @@ export default function App() {
                 {!teamScores && (
                     <>
                         <div
-                            className="rounded-3xl bg-neutral-400/20 p-4 hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40 transition-opacity duration-300 ease-in-out"
+                            className="rounded-3xl bg-neutral-400/20 p-4 transition-opacity duration-300 ease-in-out hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40"
                             onClick={nextDay}
                         >
                             <p className="text-center text-black dark:text-white">
@@ -566,10 +625,7 @@ export default function App() {
                         <Dropdown
                             selectedValue={wildCard ? "WC" : level.toString()}
                             handleChange={(e: MouseEvent<HTMLLIElement>) => {
-                                if (
-                                    e.currentTarget.dataset.value !==
-                                    "WC"
-                                ) {
+                                if (e.currentTarget.dataset.value !== "WC") {
                                     setLevel(
                                         parseInt(
                                             e.currentTarget.dataset.value!.toString(),
@@ -579,12 +635,7 @@ export default function App() {
                                 } else setWildCard(true);
                             }}
                             values={["1", "2", "3", "WC"]}
-                            names={[
-                                "Full",
-                                "Conf.",
-                                "Div.",
-                                "WC",
-                            ]}
+                            names={["Full", "Conf.", "Div.", "WC"]}
                         />
                     </div>
                 </div>
@@ -596,6 +647,9 @@ export default function App() {
                     sportLeague={sportLeague}
                     wildCard={wildCard}
                     level={level}
+                    handleSave={saveTeam}
+                    handleDelete={deleteTeam}
+                    savedTeams={savedTeams}
                 />
             </>
         );
@@ -605,6 +659,9 @@ export default function App() {
                 game={scoreboards[boxScoreIndex!]}
                 sportLeague={sportLeague}
                 handleTeamClick={handleTeamClick}
+                handleSave={saveTeam}
+                handleDelete={deleteTeam}
+                savedTeams={savedTeams}
             />
         );
     } else if (page === "Settings") {
@@ -623,6 +680,25 @@ export default function App() {
                 </div>
             </>
         );
+    } else if (page === "My Teams") {
+        content = (
+            <>
+                {savedTeams.length === 0 ? (
+                    <p className="text-black dark:text-white">
+                        No Saved Teams. Star a Team to Save it.
+                    </p>
+                ) : (
+                    savedTeams.map((team) => (
+                        <SavedTeam
+                            key={team.name}
+                            team={team}
+                            handleDelete={deleteTeam}
+                            handleClick={handleSavedTeamClick}
+                        />
+                    ))
+                )}
+            </>
+        );
     }
 
     let controlButton;
@@ -630,8 +706,11 @@ export default function App() {
     if (page === "Overview") {
         controlButton = (
             <p
-                className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur  hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
-                onClick={() => setPage("Games")}
+                className="fixed top-18 right-5 z-1000 rounded-full bg-neutral-400/20 p-2 px-4 text-black backdrop-blur hover:cursor-pointer dark:bg-neutral-800/40 dark:text-white"
+                onClick={() => {
+                    setPage("Games");
+                    window.scrollTo({ top: 0 });
+                }}
             >
                 X
             </p>
@@ -644,13 +723,14 @@ export default function App() {
                     setScoreboards([]);
                     setTeamScores(false);
                     setSelectedTeamID("-1");
-                    if (page !== "Standings") setPage("Standings");
+                    window.scrollTo({ top: 0 });
                 }}
             >
                 X
             </p>
         );
-    } else {
+    } else if (page === "My Teams") controlButton = <></>;
+    else {
         controlButton = (
             <Dropdown
                 selectedValue={sportLeague}
@@ -664,7 +744,7 @@ export default function App() {
     return (
         <>
             <Header />
-            <Navbar handlePageChange={handleNavbarSelect} />
+            <Navbar page={page} handlePageChange={handleNavbarSelect} />
             <div className="mx-5 mt-20 flex flex-col gap-4 md:ml-50">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold text-black dark:text-white">
