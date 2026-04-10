@@ -3,14 +3,15 @@ import { useEffect, useState } from "react";
 interface BeforeInstallPromptEvent extends Event {
     readonly platforms: string;
     readonly userChoice: Promise<{
-        outcome: "accepted" | "dismissed",
+        outcome: "accepted" | "dismissed";
         platform: string;
-    }>
+    }>;
     prompt(): Promise<void>;
 }
 
 export default function InstallButton() {
-    const [promptInstall, setPromptInstall] = useState<BeforeInstallPromptEvent | null>(null);
+    const [promptInstall, setPromptInstall] =
+        useState<BeforeInstallPromptEvent | null>(null);
     useEffect(() => {
         const handler = (e: Event) => {
             e.preventDefault();
@@ -26,8 +27,13 @@ export default function InstallButton() {
         if (outcome === "accepted") setPromptInstall(null);
     };
     if (!promptInstall) return null;
-    return <button onClick={onClick} className="flex gap-2 items-center rounded-3xl bg-blue-950 p-2 hover:cursor-pointer">
-        <span className="material-symbols-rounded">download</span>
-        <p className="text-black dark:text-white">Install</p>
-    </button>
-};
+    return (
+        <button
+            onClick={onClick}
+            className="flex items-center gap-2 rounded-3xl bg-blue-500/30 p-2 hover:cursor-pointer"
+        >
+            <span className="material-symbols-rounded">download</span>
+            <p className="text-black dark:text-white">Install</p>
+        </button>
+    );
+}

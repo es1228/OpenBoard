@@ -25,7 +25,7 @@ export default function SavedTeam({
                 />
                 <h1 className="text-2xl">{team.name}</h1>
                 <button
-                    className="ml-auto flex items-center rounded-full bg-blue-950 p-2 hover:cursor-pointer"
+                    className="ml-auto flex items-center rounded-full bg-blue-500/30 p-2 hover:cursor-pointer"
                     onClick={(e: MouseEvent<HTMLButtonElement>) => {
                         e.stopPropagation();
                         handleDelete(team.name);
