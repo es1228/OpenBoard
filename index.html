@@ -1,15 +1,40 @@
 <!doctype html>
 <html lang="en" class="dark:scheme-dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="manifest" href="manifest.json">
-    <title>OpenBoard</title>
-  </head>
-  <body class="bg-neutral-50 dark:bg-neutral-950">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+            rel="stylesheet"
+        />
+        <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+        <link rel="manifest" href="manifest.json" />
+        <meta
+            name="theme-color"
+            content="#ffffff"
+            media="(prefers-color-scheme: light)"
+            id="theme-meta"
+        />
+        <meta
+            name="theme-color"
+            content="#000000"
+            media="(prefers-color-scheme: dark)"
+            id="theme-meta"
+        />
+        <script>
+            (function () {
+                const saved = localStorage.getItem("theme");
+                const system = window
+                    .matchMedia("prefers-color-scheme: dark")
+                    .matches();
+                if (saved === "dark" || (!saved && "system"))
+                    document.documentElement.classList.add("dark");
+            })();
+        </script>
+        <title>OpenBoard</title>
+    </head>
+    <body class="bg-neutral-50 dark:bg-neutral-950">
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
 </html>

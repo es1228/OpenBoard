@@ -402,6 +402,8 @@ export default function App() {
         const changeTheme = () => {
             const root = window.document.documentElement;
             root.classList.remove("light", "dark");
+            const metaTag = document.querySelector('meta[name="theme-color"]')
+            metaTag?.setAttribute("content", theme === "dark" ? "#0a0a0a" : "#fafafa")
             if (theme === "system")
                 if (window.matchMedia("(prefers-color-scheme: dark)").matches)
                     root.classList.add("dark");
