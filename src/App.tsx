@@ -7,6 +7,7 @@ import Dropdown from "./components/Dropdown";
 import Table from "./components/Table";
 import GameInfo from "./components/GameInfo";
 import SavedTeam from "./components/SavedTeam";
+import InstallButton from "./components/InstallButton";
 
 export type Game = {
     id: string;
@@ -402,8 +403,11 @@ export default function App() {
         const changeTheme = () => {
             const root = window.document.documentElement;
             root.classList.remove("light", "dark");
-            const metaTag = document.querySelector('meta[name="theme-color"]')
-            metaTag?.setAttribute("content", theme === "dark" ? "#0a0a0a" : "#fafafa")
+            const metaTag = document.querySelector('meta[name="theme-color"]');
+            metaTag?.setAttribute(
+                "content",
+                theme === "dark" ? "#0a0a0a" : "#fafafa",
+            );
             if (theme === "system")
                 if (window.matchMedia("(prefers-color-scheme: dark)").matches)
                     root.classList.add("dark");
@@ -752,6 +756,7 @@ export default function App() {
                     <h1 className="text-2xl font-bold text-black dark:text-white">
                         {page}
                     </h1>
+                    <div className={`${page !== "My Teams" && "hidden"}`}><InstallButton /></div>
                     {controlButton}
                 </div>
             </div>
