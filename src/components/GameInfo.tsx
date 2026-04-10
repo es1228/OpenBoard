@@ -26,7 +26,7 @@ export default function GameInfo({
     handleTeamClick,
     handleSave,
     handleDelete,
-    savedTeams
+    savedTeams,
 }: GameInfoProps) {
     const [winProbability, setWinProbability] = useState<winprobability[]>([]);
     const [gameSummary, setGameSummary] = useState<Summary>();
@@ -245,7 +245,7 @@ export default function GameInfo({
                             {play.scoringPlay && (
                                 <div className="flex items-center gap-4">
                                     <img
-                                        src={`${play.team?.id === homeTeam?.team.id ? homeTeam?.team.logo : awayTeam?.team.logo}`}
+                                        src={`${play.team?.id === homeTeam?.team.id ? (homeTeam?.team.logo ?? homeTeam?.team.logos[0].href) : (awayTeam?.team.logo ?? awayTeam?.team.logos[0].href)}`}
                                         className="h-10"
                                         alt={`${play.team?.id === homeTeam?.team.id ? `${homeTeam} logo` : `${awayTeam} logo`}`}
                                     />
@@ -337,9 +337,9 @@ export default function GameInfo({
                                 className="flex items-center gap-4"
                             >
                                 <img
-                                    src={`${play.team?.id === homeTeam?.team.id ? homeTeam?.team.logo : awayTeam?.team.logo}`}
-                                    alt={`${play.team?.id === homeTeam?.team.id ? `${homeTeam} logo` : `${awayTeam} logo`}`}
+                                    src={`${play.team?.id === homeTeam?.team.id ? (homeTeam?.team.logo ?? homeTeam?.team.logos[0].href) : (awayTeam?.team.logo ?? awayTeam?.team.logos[0].href)}`}
                                     className="h-10"
+                                    alt={`${play.team?.id === homeTeam?.team.id ? `${homeTeam} logo` : `${awayTeam} logo`}`}
                                 />
                                 <div>
                                     <p className="font-bold">
