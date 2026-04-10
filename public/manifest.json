@@ -1,0 +1,29 @@
+{
+    "short_name": "OpenBoard",
+    "name": "OpenBoard Sports App",
+    "icons": [
+        {
+            "src": "favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "screenshot-desktop.png",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Desktop screenshot"
+        },
+        {
+            "src": "screenshot-mobile.png",
+            "type": "image/png",
+            "label": "Mobile screenshot"
+        }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "black",
+    "background_color": "white"
+}

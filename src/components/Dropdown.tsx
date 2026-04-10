@@ -32,14 +32,16 @@ export default function Dropdown({
     return (
         <div className="relative" ref={clickRef}>
             <button
-                className="flex w-full min-w-20 justify-between rounded-3xl bg-neutral-400/20 px-4 py-2 text-black transition-opacity duration-300 ease-in-out hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40 dark:text-white"
+                className="flex w-full min-w-20 justify-between rounded-3xl bg-neutral-400/20 px-4 py-2 text-black outline-0 transition-opacity duration-300 ease-in-out hover:cursor-pointer hover:opacity-70 dark:bg-neutral-800/40 dark:text-white"
                 onClick={() => setMenuOpen(!menuOpen)}
             >
                 {names[values.indexOf(selectedValue)]}
                 <div
-                    className={`block max-h-6 transition-transform origin-center duration-300 ${menuOpen ? "rotate-180" : "rotate-0"}`}
+                    className={`block max-h-6 origin-center transition-transform duration-300 ${menuOpen ? "rotate-180" : "rotate-0"}`}
                 >
-                        <span className="material-symbols-rounded">arrow_drop_down</span>
+                    <span className="material-symbols-rounded">
+                        arrow_drop_down
+                    </span>
                 </div>
             </button>
             {menuOpen && (
@@ -56,7 +58,9 @@ export default function Dropdown({
                         >
                             <div className="w-4">
                                 {val === selectedValue && (
-                                    <span className="material-symbols-rounded">check</span>
+                                    <span className="material-symbols-rounded">
+                                        check
+                                    </span>
                                 )}
                             </div>
                             {names[index]}
