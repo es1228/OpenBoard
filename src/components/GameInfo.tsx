@@ -222,6 +222,32 @@ export default function GameInfo({
                     </div>
                 </div>
             </div>
+            {gameSummary?.plays && (
+                <div className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
+                    <h1 className="font-bold">Scoring Plays</h1>
+                    {gameSummary.plays?.map((play) => (
+                        <>
+                            {play.scoringPlay && (
+                                <div className="flex items-center gap-4">
+                                    <img
+                                        src={`${play.team?.id === homeTeam?.team.id ? homeTeam?.team.logo : awayTeam?.team.logo}`}
+                                        className="h-10"
+                                    />
+                                    <div>
+                                        <p className="font-bold">
+                                            {play.period.displayValue},{" "}
+                                            {awayTeam?.team.abbreviation}{" "}
+                                            {play.awayScore} - {play.homeScore}{" "}
+                                            {homeTeam?.team.abbreviation}
+                                        </p>
+                                        <p>{play.text}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ))}
+                </div>
+            )}
             {gameSummary?.boxscore?.players &&
                 gameSummary.boxscore.players.map((player) => (
                     <div
@@ -287,24 +313,26 @@ export default function GameInfo({
                 ))}
             {gameSummary?.plays && (
                 <div className="flex flex-col gap-2 rounded-3xl bg-neutral-400/20 p-4 text-black dark:bg-neutral-800/40 dark:text-white">
-                    <h1 className="font-bold">Scoring Plays</h1>
+                    <h1 className="font-bold">Play By Play</h1>
                     {gameSummary.plays?.map((play) => (
                         <>
-                            {play.scoringPlay && (
-                                <div className="flex gap-4 items-center">
-                                    <img
-                                        src={`${play.team?.id === homeTeam?.team.id ? homeTeam?.team.logo : awayTeam?.team.logo}`} className="h-10"
-                                    />
-                                    <div>
-                                        <p className="font-bold">{play.period.displayValue}, {awayTeam?.team.abbreviation}{" "}
-                                            {play.awayScore} - {play.homeScore}{" "}
-                                            {homeTeam?.team.abbreviation}</p>
-                                        <p>{play.text}</p>
-                                    </div>
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={`${play.team?.id === homeTeam?.team.id ? homeTeam?.team.logo : awayTeam?.team.logo}`}
+                                    className="h-10"
+                                />
+                                <div>
+                                    <p className="font-bold">
+                                        {play.period.displayValue},{" "}
+                                        {awayTeam?.team.abbreviation}{" "}
+                                        {play.awayScore} - {play.homeScore}{" "}
+                                        {homeTeam?.team.abbreviation}
+                                    </p>
+                                    <p>{play.text}</p>
                                 </div>
-                            )}
+                            </div>
                         </>
-                    ))}
+                    )).toReversed()}
                 </div>
             )}
             <p className="text-black dark:text-white">
