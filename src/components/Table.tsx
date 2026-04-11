@@ -207,8 +207,8 @@ const StandingsTable = ({
                                                 </p>
                                                 {savedTeams.some(
                                                     (team) =>
-                                                        team.id ===
-                                                        entry.team.id,
+                                                        team.name ===
+                                                        entry.team.displayName,
                                                 ) ? (
                                                     <span
                                                         className="material-symbols-rounded"

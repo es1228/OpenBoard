@@ -113,7 +113,7 @@ export default function Scorecard({
                                     {awayTeam?.team.abbreviation}
                                 </p>
                                 {savedTeams.some(
-                                    (team) => team.id === awayTeam?.team.id,
+                                    (team) => team.name === awayTeam?.team.displayName,
                                 ) ? (
                                     <span
                                         className="material-symbols-rounded"
@@ -196,7 +196,7 @@ export default function Scorecard({
                                     {homeTeam?.team.abbreviation}
                                 </p>
                                 {savedTeams.some(
-                                    (team) => team.id === homeTeam?.team.id,
+                                    (team) => team.name === homeTeam?.team.displayName,
                                 ) ? (
                                     <span
                                         className="material-symbols-rounded"
