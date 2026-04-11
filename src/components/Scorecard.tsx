@@ -88,9 +88,8 @@ export default function Scorecard({
                                     className="w-15 md:w-20"
                                     src={
                                         awayTeam?.team.logo ??
-                                        awayTeam?.team.logos[0].href
+                                        awayTeam?.team.logos?.[0]?.href
                                     }
-                                    alt={`${awayTeam?.team.displayName} Logo`}
                                 />
                                 <h1
                                     className={`text-4xl ${awayTeam?.winner ? "text-amber-300" : "text-black dark:text-white"}`}
@@ -113,7 +112,9 @@ export default function Scorecard({
                                     {awayTeam?.team.abbreviation}
                                 </p>
                                 {savedTeams.some(
-                                    (team) => team.name === awayTeam?.team.displayName,
+                                    (team) =>
+                                        team.name ===
+                                        awayTeam?.team.displayName,
                                 ) ? (
                                     <span
                                         className="material-symbols-rounded"
@@ -135,9 +136,17 @@ export default function Scorecard({
                                         onClick={(
                                             e: MouseEvent<HTMLSpanElement>,
                                         ) => {
-                                            if (!awayTeam?.team.id) return;
                                             e.stopPropagation();
-                                            handleSave(                                               
+                                            if (
+                                                !awayTeam?.team.id ||
+                                                awayTeam?.team.displayName ===
+                                                    "TBD" ||
+                                                awayTeam?.team.displayName.includes(
+                                                    "/",
+                                                )
+                                            )
+                                                return () => {};
+                                            handleSave(
                                                 awayTeam?.team.id!,
                                                 awayTeam?.team.displayName!,
                                                 awayTeam?.team.logo!,
@@ -183,9 +192,8 @@ export default function Scorecard({
                                     className="w-15 md:w-20"
                                     src={
                                         homeTeam?.team.logo ??
-                                        homeTeam?.team.logos[0].href
+                                        homeTeam?.team.logos?.[0]?.href
                                     }
-                                    alt={`${homeTeam?.team.displayName} Logo`}
                                 />
                             </div>
                             <div className="flex gap-1">
@@ -196,7 +204,9 @@ export default function Scorecard({
                                     {homeTeam?.team.abbreviation}
                                 </p>
                                 {savedTeams.some(
-                                    (team) => team.name === homeTeam?.team.displayName,
+                                    (team) =>
+                                        team.name ===
+                                        homeTeam?.team.displayName,
                                 ) ? (
                                     <span
                                         className="material-symbols-rounded"
@@ -218,8 +228,16 @@ export default function Scorecard({
                                         onClick={(
                                             e: MouseEvent<HTMLSpanElement>,
                                         ) => {
-                                            if (!homeTeam?.team.id) return;
                                             e.stopPropagation();
+                                            if (
+                                                !homeTeam?.team.id ||
+                                                homeTeam?.team.displayName ===
+                                                    "TBD" ||
+                                                homeTeam?.team.displayName.includes(
+                                                    "/",
+                                                )
+                                            )
+                                                return () => {};
                                             handleSave(
                                                 homeTeam?.team.id!,
                                                 homeTeam?.team.displayName!,
@@ -240,7 +258,8 @@ export default function Scorecard({
                     </div>
                 </div>
                 <p className="text-center text-black dark:text-white">
-                    {competition?.notes?.[0]?.text}
+                    {competition?.notes?.[0]?.text ??
+                        competition?.notes?.[0]?.headline}
                 </p>
             </div>
         </>

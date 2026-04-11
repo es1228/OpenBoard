@@ -19,6 +19,7 @@ export type Game = {
         date: string;
         notes: Array<{
             text: string;
+            headline: string;
         }>;
         series?: {
             title: string;
@@ -481,6 +482,8 @@ export default function App() {
     }, [scoreboards, teamScores, page]);
 
     const scoresList = scoreboards.map((game, index) => {
+        if (scoreboards.length === 0) 
+            return <p className="text-black dark:text-white">No Games Today.</p>
         const competition = game.competitions[0];
         const competitiors = competition.competitors;
 

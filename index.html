@@ -21,16 +21,6 @@
             media="(prefers-color-scheme: dark)"
             id="theme-meta"
         />
-        <script>
-            (function () {
-                const saved = localStorage.getItem("theme");
-                const system = window
-                    .matchMedia("prefers-color-scheme: dark")
-                    .matches();
-                if (saved === "dark" || (!saved && "system"))
-                    document.documentElement.classList.add("dark");
-            })();
-        </script>
         <title>OpenBoard</title>
     </head>
     <body class="bg-neutral-50 dark:bg-neutral-950">
